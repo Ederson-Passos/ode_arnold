@@ -1,16 +1,19 @@
 """
-Scientific 3D Visualization: Free Fall in V. I. Arnold's Formalism
-==================================================================
+Scientific 3D Visualization: Free Fall in V. I. Arnold's Formalism (Archival Tufte Edition)
+===========================================================================================
 Based on Vladimir I. Arnold's "Ordinary Differential Equations" (Chapter 1, Section 1.1.14).
+Styled in a 1940s–1950s archival scientific monograph palette adhering to Edward Tufte's
+principles of analytical design (high data-ink ratio, transparent 3D panes, muted surfaces,
+and zero chartjunk).
 
 This script constructs a side-by-side dual-panel 3D visualization:
-- Panel 1: The Extended Phase Space R x R^2 with axes (t, x_1, x_2).
+- Fig. 1a: The Extended Phase Space R x R^2 with axes (t, x_1, x_2).
   Features the invariant energy manifold (parabolic cylinder),
   the three-dimensional integral curve gamma(t), the extended vector field V_tilde(t, x_1, x_2),
   the phase plane projection on the lateral wall t = 0 with the autonomous vector field V(x_1, x_2),
   and orthogonal projection drop lines connecting the 3D trajectory to its shadow.
 
-- Panel 2: The First Integral Relief (Energy Surface) with axes (x_1, x_2, E).
+- Fig. 1b: The First Integral Relief (Energy Surface) with axes (x_1, x_2, E).
   Features the energy surface E(x_1, x_2) = (1/2) m x_2^2 + m g x_1, the horizontal cutting plane
   at E = E_0, the 3D intersection level curve, and the projection onto the base plane
   demonstrating geometrically that phase curves are level curves of mechanical energy.
@@ -20,12 +23,33 @@ Outputs:
 2. High-resolution publication-quality image via Matplotlib: 'pictures/free_fall_arnold_3d.png'
 """
 
+from pathlib import Path
+
+import matplotlib.pyplot as plt
 import numpy as np
 import plotly.graph_objects as go
+from matplotlib.colors import LinearSegmentedColormap
+from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
 from plotly.subplots import make_subplots
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-from matplotlib import cm
+
+
+# =============================================================================
+# ARCHIVAL 1940s–1950s PAPER & TUFTE INK PALETTE
+# =============================================================================
+ARCHIVAL_PAPER_BG: str = "#F5EFE0"
+INK_PRIMARY: str = "#191715"
+INK_SECONDARY: str = "#47423B"
+INK_MUTED: str = "#787064"
+RULE_HAIRLINE: str = "#C8BFA8"
+
+INK_COBALT: str = "#1B4965"     # Prussian / Cobalt Blue (Phase Plane Projections)
+INK_VERMILION: str = "#9E2A2B"  # Carmine / Vermilion Red (3D Integral & Level Curves)
+INK_FOREST: str = "#2D5A27"     # Olive / Forest Green (Autonomous Phase Vector Field V)
+INK_OCHRE: str = "#8C5A16"      # Warm Sepia Ochre (Extended Field V_tilde & Cutting Plane)
+
+ARCHIVAL_CMAP = LinearSegmentedColormap.from_list(
+    "archival_sepia", ["#E6DEC8", "#C8B998", "#8C5A16", "#1B4965"]
+)
 
 
 # =============================================================================
@@ -69,7 +93,7 @@ x2_surf = np.linspace(-16.0, 16.0, 50)
 T_mesh, X2_mesh = np.meshgrid(t_surf, x2_surf)
 X1_mesh = (E0 / (m * g)) - (X2_mesh ** 2) / (2.0 * g)
 
-# Orthogonal projection points connecting 3D curve to t = 0 wall (dashed tie lines)
+# Orthogonal projection points connecting 3D curve to t = 0 wall (dotted tie lines)
 t_proj_pts = np.array([0.0, 0.5, 1.0, 1.4286, 2.0, 2.5, 3.0])
 x1_proj_pts = -0.5 * g * (t_proj_pts ** 2) + v0 * t_proj_pts + x0
 x2_proj_pts = -g * t_proj_pts + v0
@@ -145,34 +169,44 @@ EB_Vx2_n = (EB_Vx2 / norm_eb) * scale_2d
 
 
 # =============================================================================
-# 3. CONSTRUCTION OF INTERACTIVE PLOTLY VISUALIZATION
+# 3. CONSTRUCTION OF INTERACTIVE PLOTLY VISUALIZATION (ARCHIVAL TUFTE STYLE)
 # =============================================================================
 def build_plotly_figure():
-    """Creates high-fidelity 3D interactive dual-panel visualization using Plotly."""
+    """Creates 3D interactive dual-panel visualization in 1940s–50s archival Tufte style."""
     fig = make_subplots(
         rows=1, cols=2,
         specs=[[{'type': 'scene'}, {'type': 'scene'}]],
         subplot_titles=(
-            "<b>Panel 1: Extended Phase Space ℝ × ℝ² (t, x₁, x₂)</b><br>"
-            "<sup>Invariant Manifold, Integral Curve and Parabolic Projection onto t = 0</sup>",
-            "<b>Panel 2: First Integral Relief (x₁, x₂, E)</b><br>"
-            "<sup>Mechanical Energy Surface, Section at E = E₀ and Base Level Curve</sup>"
+            "<b>Fig. 1a. Extended Phase Space ℝ × ℝ² (t, x₁, x₂)</b><br>"
+            "<sup><i>Parabolic Cylinder Manifold, Integral Curve γ(t) & Projection onto t = 0</i></sup>",
+            "<b>Fig. 1b. First Integral Relief (x₁, x₂, E)</b><br>"
+            "<sup><i>Mechanical Energy Surface E(x₁, x₂), Cutting Plane E = E₀ & Base Level Curve</i></sup>"
         ),
         horizontal_spacing=0.03
     )
 
+    # Style subplot title annotations in classic monograph serif
+    for annotation in fig['layout']['annotations']:
+        annotation['font'] = dict(
+            family="EB Garamond, Palatino Linotype, Georgia, serif",
+            size=15,
+            color=INK_PRIMARY
+        )
+
     # -------------------------------------------------------------------------
     # PANEL 1: EXTENDED PHASE SPACE (t, x_1, x_2)
-    # Axes: X = t (Time), Y = x_1 (Position/Height), Z = x_2 (Velocity)
     # -------------------------------------------------------------------------
 
-    # 1.1 Constant Energy Invariant Surface (Parabolic Cylinder)
+    # 1.1 Constant Energy Invariant Surface (Parabolic Cylinder in Muted Sepia Wash)
     fig.add_trace(
         go.Surface(
             x=T_mesh, y=X1_mesh, z=X2_mesh,
-            colorscale=[[0.0, 'rgba(30,144,255,0.45)'], [1.0, 'rgba(0,206,209,0.55)']],
+            colorscale=[
+                [0.0, 'rgba(140, 90, 22, 0.14)'],
+                [1.0, 'rgba(27, 73, 101, 0.18)']
+            ],
             showscale=False,
-            name="Invariant Surface x₁ = E₀/mg - x₂²/(2g)",
+            name="Invariant Manifold x₁ = E₀/mg − x₂²/(2g)",
             legendgroup="p1_surf",
             showlegend=True,
             hoverinfo="text",
@@ -181,27 +215,27 @@ def build_plotly_figure():
         row=1, col=1
     )
 
-    # 1.2 Projection on lateral wall t = 0 (Phase Parabola)
+    # 1.2 Projection on lateral wall t = 0 (Phase Parabola in Prussian Cobalt Ink)
     fig.add_trace(
         go.Scatter3d(
             x=np.zeros_like(x1_curve), y=x1_curve, z=x2_curve,
             mode='lines',
-            line=dict(color='#8B008B', width=8),
-            name="Phase Plane Projection (t = 0)",
+            line=dict(color=INK_COBALT, width=6),
+            name="Phase Projection (t = 0)",
             legendgroup="p1_proj",
             showlegend=True,
             hoverinfo="text",
-            hovertext="Projected Phase Orbit at t = 0: x₁ = 10 - x₂²/19.6"
+            hovertext="Projected Phase Orbit at t = 0: x₁ = 10 − x₂²/19.6"
         ),
         row=1, col=1
     )
 
-    # 1.3 3D Integral Curve gamma(t)
+    # 1.3 3D Integral Curve gamma(t) in Carmine Vermilion Ink
     fig.add_trace(
         go.Scatter3d(
             x=t_curve, y=x1_curve, z=x2_curve,
             mode='lines',
-            line=dict(color='#FF2200', width=10),
+            line=dict(color=INK_VERMILION, width=7),
             name="Integral Curve γ(t) = (t, x₁(t), x₂(t))",
             legendgroup="p1_gamma",
             showlegend=True,
@@ -214,7 +248,7 @@ def build_plotly_figure():
         row=1, col=1
     )
 
-    # Key trajectory markers
+    # Key trajectory nodes (Classic Hollow Technical Rings)
     key_t = np.array([0.0, v0 / g, 2 * v0 / g, 3.0])
     key_x1 = -0.5 * g * (key_t ** 2) + v0 * key_t + x0
     key_x2 = -g * key_t + v0
@@ -222,18 +256,23 @@ def build_plotly_figure():
         go.Scatter3d(
             x=key_t, y=key_x1, z=key_x2,
             mode='markers+text',
-            marker=dict(size=6, color=['#00FF00', '#FFFF00', '#FFA500', '#FF0000']),
+            marker=dict(
+                size=5.5,
+                color=ARCHIVAL_PAPER_BG,
+                line=dict(color=INK_PRIMARY, width=2)
+            ),
             text=[" t=0", " Apex (x₂=0)", " Return", " t=3s"],
+            textfont=dict(family="EB Garamond, Georgia, serif", size=12, color=INK_PRIMARY),
             textposition="top right",
-            name="Key Points on γ(t)",
+            name="Characteristic Nodes on γ(t)",
             legendgroup="p1_pts",
             showlegend=True,
             hoverinfo="text",
             hovertext=[
                 "Start: t=0 s, x₁=0 m, x₂=+14 m/s",
                 "Apex: t=1.43 s, x₁=10 m, x₂=0 m/s",
-                "Return to base: t=2.86 s, x₁=0 m, x₂=-14 m/s",
-                "End: t=3.0 s, x₁=-2.1 m, x₂=-15.4 m/s"
+                "Return to base: t=2.86 s, x₁=0 m, x₂=−14 m/s",
+                "End: t=3.0 s, x₁=−2.1 m, x₂=−15.4 m/s"
             ]
         ),
         row=1, col=1
@@ -250,8 +289,8 @@ def build_plotly_figure():
         go.Scatter3d(
             x=tie_x, y=tie_y, z=tie_z,
             mode='lines',
-            line=dict(color='rgba(120, 120, 120, 0.85)', width=3, dash='dash'),
-            name="Orthogonal Projection Lines (t → 0)",
+            line=dict(color='rgba(120, 112, 100, 0.72)', width=2, dash='dot'),
+            name="Orthogonal Tie-Lines (t → 0)",
             legendgroup="p1_tie",
             showlegend=True,
             hoverinfo="none"
@@ -259,21 +298,21 @@ def build_plotly_figure():
         row=1, col=1
     )
 
-    # 1.5 Extended 3D vector field V_tilde = (1, x_2, -g) on surface
+    # 1.5 Extended 3D vector field V_tilde = (1, x_2, -g) on surface in Warm Ochre Ink
     fig.add_trace(
         go.Cone(
             x=T_vec, y=X1_vec, z=X2_vec,
             u=U_t_n, v=U_x1_n, w=U_x2_n,
             sizemode="absolute",
-            sizeref=1.3,
+            sizeref=1.15,
             anchor="tail",
-            colorscale=[[0, '#FF8C00'], [1, '#FF4500']],
+            colorscale=[[0, INK_OCHRE], [1, INK_OCHRE]],
             showscale=False,
-            name="Extended Field Ṽ = (1, x₂, -g)",
+            name="Extended Field Ṽ = (1, x₂, −g)",
             legendgroup="p1_cone",
             showlegend=True,
             hoverinfo="text",
-            hovertext="Extended Tangent Vector Ṽ(t, x₁, x₂) = (1, x₂, -g)"
+            hovertext="Extended Tangent Vector Ṽ(t, x₁, x₂) = (1, x₂, −g)"
         ),
         row=1, col=1
     )
@@ -287,28 +326,28 @@ def build_plotly_figure():
         go.Scatter3d(
             x=shaft_x, y=shaft_y, z=shaft_z,
             mode='lines',
-            line=dict(color='#FF4500', width=3),
+            line=dict(color=INK_OCHRE, width=2.2),
             showlegend=False,
             hoverinfo="none"
         ),
         row=1, col=1
     )
 
-    # 1.6 2D Autonomous vector field V = (x_2, -g) on wall t = 0
+    # 1.6 2D Autonomous vector field V = (x_2, -g) on wall t = 0 in Forest Ink
     fig.add_trace(
         go.Cone(
             x=T_g2d, y=X1_g2d, z=X2_g2d,
             u=np.zeros_like(Vx1_n), v=Vx1_n, w=Vx2_n,
             sizemode="absolute",
-            sizeref=0.9,
+            sizeref=0.82,
             anchor="tail",
-            colorscale=[[0, '#2E8B57'], [1, '#006400']],
+            colorscale=[[0, INK_FOREST], [1, INK_FOREST]],
             showscale=False,
             name="Autonomous Field V(x₁, x₂) at t = 0",
             legendgroup="p1_field2d",
             showlegend=True,
             hoverinfo="text",
-            hovertext=[f"V = (x₂={x2:.1f}, -g={-g:.1f})" for x2 in X2_g2d]
+            hovertext=[f"V = (x₂={x2:.1f}, −g={-g:.1f})" for x2 in X2_g2d]
         ),
         row=1, col=1
     )
@@ -322,7 +361,7 @@ def build_plotly_figure():
         go.Scatter3d(
             x=shaft2d_x, y=shaft2d_y, z=shaft2d_z,
             mode='lines',
-            line=dict(color='#006400', width=2),
+            line=dict(color=INK_FOREST, width=1.8),
             showlegend=False,
             hoverinfo="none"
         ),
@@ -331,21 +370,23 @@ def build_plotly_figure():
 
     # -------------------------------------------------------------------------
     # PANEL 2: FIRST INTEGRAL RELIEF (x_1, x_2, E)
-    # Axes: X = x_1 (Position/Height), Y = x_2 (Velocity), Z = E (Mechanical Energy)
     # -------------------------------------------------------------------------
 
     # 2.1 Mechanical Energy Surface E(x_1, x_2) = (1/2) m x_2^2 + m g x_1
     fig.add_trace(
         go.Surface(
             x=X1_E, y=X2_E, z=Energy_Surface,
-            colorscale='Viridis',
-            opacity=0.72,
+            colorscale=[
+                [0.0, 'rgba(120, 112, 100, 0.16)'],
+                [0.5, 'rgba(140, 90, 22, 0.22)'],
+                [1.0, 'rgba(27, 73, 101, 0.28)']
+            ],
             showscale=False,
             name="Energy Surface E(x₁, x₂)",
             legendgroup="p2_energysurf",
             showlegend=True,
             hoverinfo="text",
-            hovertext="First Integral Relief: E = 0.5·m·x₂² + m·g·x₁"
+            hovertext="First Integral Relief: E = ½ m x₂² + m g x₁"
         ),
         row=1, col=2
     )
@@ -354,9 +395,12 @@ def build_plotly_figure():
     fig.add_trace(
         go.Surface(
             x=X1_E, y=X2_E, z=Plane_E0,
-            colorscale=[[0, 'rgba(255, 215, 0, 0.45)'], [1, 'rgba(255, 215, 0, 0.45)']],
+            colorscale=[
+                [0, 'rgba(140, 90, 22, 0.16)'],
+                [1, 'rgba(140, 90, 22, 0.16)']
+            ],
             showscale=False,
-            name="Plane E = E₀ = 98 J",
+            name="Cutting Plane E = E₀ = 98 J",
             legendgroup="p2_plane",
             showlegend=True,
             hoverinfo="text",
@@ -365,12 +409,12 @@ def build_plotly_figure():
         row=1, col=2
     )
 
-    # 2.3 3D Intersection Level Curve at E = E0
+    # 2.3 3D Intersection Level Curve at E = E0 in Vermilion Ink
     fig.add_trace(
         go.Scatter3d(
             x=x1_iso, y=x2_iso, z=E_iso,
             mode='lines',
-            line=dict(color='#FF1493', width=8),
+            line=dict(color=INK_VERMILION, width=7),
             name="3D Level Curve: E(x₁, x₂) = E₀",
             legendgroup="p2_level3d",
             showlegend=True,
@@ -380,17 +424,17 @@ def build_plotly_figure():
         row=1, col=2
     )
 
-    # 2.4 Projection of Level Curve onto Base Plane E = 0 (Phase Orbit)
+    # 2.4 Projection of Level Curve onto Base Plane E = 0 in Prussian Cobalt Ink
     fig.add_trace(
         go.Scatter3d(
             x=x1_iso, y=x2_iso, z=E_proj_base,
             mode='lines',
-            line=dict(color='#8B008B', width=8),
-            name="Base Plane Projection E = 0 (Phase Orbit)",
+            line=dict(color=INK_COBALT, width=6),
+            name="Base Projection E = 0 (Phase Orbit)",
             legendgroup="p2_levelbase",
             showlegend=True,
             hoverinfo="text",
-            hovertext="Base Phase Plane Orbit: x₁ = E₀/mg - x₂²/(2g)"
+            hovertext="Base Phase Plane Orbit: x₁ = E₀/mg − x₂²/(2g)"
         ),
         row=1, col=2
     )
@@ -408,8 +452,8 @@ def build_plotly_figure():
         go.Scatter3d(
             x=vert_x, y=vert_y, z=vert_z,
             mode='lines',
-            line=dict(color='rgba(100, 100, 100, 0.75)', width=3, dash='dash'),
-            name="Vertical Projection (E₀ → Base)",
+            line=dict(color='rgba(120, 112, 100, 0.72)', width=2, dash='dot'),
+            name="Vertical Tie-Lines (E₀ → Base)",
             legendgroup="p2_vert_tie",
             showlegend=True,
             hoverinfo="none"
@@ -417,21 +461,21 @@ def build_plotly_figure():
         row=1, col=2
     )
 
-    # 2.6 Autonomous Vector Field on Base Plane E = 0
+    # 2.6 Autonomous Vector Field on Base Plane E = 0 in Forest Ink
     fig.add_trace(
         go.Cone(
             x=X1_EB, y=X2_EB, z=E_EB,
             u=EB_Vx1_n, v=EB_Vx2_n, w=np.zeros_like(EB_Vx1_n),
             sizemode="absolute",
-            sizeref=0.9,
+            sizeref=0.82,
             anchor="tail",
-            colorscale=[[0, '#2E8B57'], [1, '#006400']],
+            colorscale=[[0, INK_FOREST], [1, INK_FOREST]],
             showscale=False,
             name="Base Phase Vector Field",
             legendgroup="p2_basefield",
             showlegend=True,
             hoverinfo="text",
-            hovertext=[f"V(base) = (x₂={x2:.1f}, -g={-g:.1f})" for x2 in X2_EB]
+            hovertext=[f"V(base) = (x₂={x2:.1f}, −g={-g:.1f})" for x2 in X2_EB]
         ),
         row=1, col=2
     )
@@ -445,7 +489,7 @@ def build_plotly_figure():
         go.Scatter3d(
             x=shaft_eb_x, y=shaft_eb_y, z=shaft_eb_z,
             mode='lines',
-            line=dict(color='#006400', width=2),
+            line=dict(color=INK_FOREST, width=1.8),
             showlegend=False,
             hoverinfo="none"
         ),
@@ -453,7 +497,7 @@ def build_plotly_figure():
     )
 
     # -------------------------------------------------------------------------
-    # CAMERA AND LAYOUT CONFIGURATIONS
+    # TUFTE MINIMALIST CAMERA & ARCHIVAL PAPER LAYOUT
     # -------------------------------------------------------------------------
     camera_scene1 = dict(
         eye=dict(x=-1.75, y=-1.85, z=1.25),
@@ -467,175 +511,275 @@ def build_plotly_figure():
         center=dict(x=0.0, y=0.0, z=-0.1)
     )
 
+    axis_common = dict(
+        showbackground=False,
+        gridcolor="rgba(120, 112, 100, 0.24)",
+        zerolinecolor="rgba(25, 23, 21, 0.45)",
+        tickfont=dict(family="IBM Plex Mono, monospace", size=10, color=INK_SECONDARY),
+        title_font=dict(family="EB Garamond, Georgia, serif", size=13, color=INK_PRIMARY)
+    )
+
     fig.update_layout(
         title=dict(
             text=(
-                "<b>Classical Mechanics and Dynamical Systems (V. I. Arnold): Free Fall Problem</b><br>"
-                "<sup>Mechanical Energy Conservation (E₀ = 98 J), Extended Phase Space and Invariant Manifolds</sup>"
+                "<b>Dynamical Systems and Ordinary Differential Equations (V. I. Arnold — Section 1.1.14)</b><br>"
+                "<sup><i>Free Fall Problem: dx₁/dt = x₂ , dx₂/dt = −g  •  First Integral Conservation E(x₁, x₂) = ½mx₂² + mgx₁ = 98.0 J</i></sup>"
             ),
             x=0.5,
             xanchor='center',
-            font=dict(size=18, color='#1A202C', family='Arial, sans-serif')
+            font=dict(size=18, color=INK_PRIMARY, family="EB Garamond, Palatino Linotype, Georgia, serif")
         ),
         scene=dict(
-            xaxis=dict(title='<b>t [Time (s)]</b>', backgroundcolor='#F7FAFC', gridcolor='#CBD5E0', showbackground=True),
-            yaxis=dict(title='<b>x₁ [Position / Height (m)]</b>', backgroundcolor='#F7FAFC', gridcolor='#CBD5E0', showbackground=True),
-            zaxis=dict(title='<b>x₂ [Velocity (m/s)]</b>', backgroundcolor='#EDF2F7', gridcolor='#CBD5E0', showbackground=True),
+            bgcolor="rgba(0,0,0,0)",
+            xaxis=dict(title='t [Time (s)]', **axis_common),
+            yaxis=dict(title='x₁ [Position / Height (m)]', **axis_common),
+            zaxis=dict(title='x₂ [Velocity (m/s)]', **axis_common),
             camera=camera_scene1,
             aspectmode='manual',
             aspectratio=dict(x=1.2, y=1.0, z=1.0)
         ),
         scene2=dict(
-            xaxis=dict(title='<b>x₁ [Position / Height (m)]</b>', backgroundcolor='#F7FAFC', gridcolor='#CBD5E0', showbackground=True),
-            yaxis=dict(title='<b>x₂ [Velocity (m/s)]</b>', backgroundcolor='#F7FAFC', gridcolor='#CBD5E0', showbackground=True),
-            zaxis=dict(title='<b>E [Mechanical Energy (J)]</b>', backgroundcolor='#EDF2F7', gridcolor='#CBD5E0', showbackground=True),
+            bgcolor="rgba(0,0,0,0)",
+            xaxis=dict(title='x₁ [Position / Height (m)]', **axis_common),
+            yaxis=dict(title='x₂ [Velocity (m/s)]', **axis_common),
+            zaxis=dict(title='E [Mechanical Energy (J)]', **axis_common),
             camera=camera_scene2,
             aspectmode='manual',
             aspectratio=dict(x=1.0, y=1.0, z=1.0)
         ),
         legend=dict(
-            x=1.02, y=0.5,
+            x=1.01, y=0.5,
             xanchor='left', yanchor='middle',
-            bgcolor='rgba(255, 255, 255, 0.9)',
-            bordercolor='#CBD5E0',
-            borderwidth=1,
-            font=dict(size=10, family='Arial, sans-serif')
+            bgcolor='rgba(245, 239, 224, 0.85)',
+            borderwidth=0,
+            font=dict(size=11.5, color=INK_PRIMARY, family="EB Garamond, Georgia, serif")
         ),
-        margin=dict(l=20, r=20, t=100, b=30),
+        margin=dict(l=20, r=20, t=105, b=30),
         height=750,
         width=1500,
-        paper_bgcolor='#FFFFFF'
+        paper_bgcolor=ARCHIVAL_PAPER_BG,
+        plot_bgcolor=ARCHIVAL_PAPER_BG
     )
 
     return fig
 
 
+def save_archival_plotly_html(fig, html_filepath: Path) -> None:
+    """Exports the Plotly figure to a self-contained HTML file with 1940s–50s archival paper styling."""
+    raw_html = fig.to_html(include_plotlyjs="cdn", full_html=True)
+    archival_css = f"""
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+      body {{
+        background-color: {ARCHIVAL_PAPER_BG};
+        background-image: radial-gradient(circle at 50% 35%, #faf6eb 0%, #f5efe0 70%, #ede4cf 100%);
+        color: {INK_PRIMARY};
+        font-family: 'EB Garamond', Georgia, serif;
+        margin: 0;
+        padding: 16px 24px;
+        display: flex;
+        justify-content: center;
+      }}
+    </style>
+    </head>
+    """
+    styled_html = raw_html.replace("</head>", archival_css, 1)
+    Path(html_filepath).write_text(styled_html, encoding="utf-8")
+
+
 # =============================================================================
-# 4. CONSTRUCTION OF MATPLOTLIB VISUALIZATION (STATIC / PUBLICATION)
+# 4. CONSTRUCTION OF MATPLOTLIB VISUALIZATION (ARCHIVAL TUFTE EDITION)
 # =============================================================================
 def build_matplotlib_figure():
-    """Generates publication-quality 3D dual-panel visualization using Matplotlib."""
-    fig = plt.figure(figsize=(20, 9.5))
-    plt.suptitle(
-        r"$\bf{Dynamical\ Systems\ and\ Ordinary\ Differential\ Equations\ (V.\ I.\ Arnold)}$" + "\n"
-        r"Free Fall Problem: $\dot{x}_1 = x_2,\; \dot{x}_2 = -g$ ($g = 9.8\ \mathrm{m/s^2},\; m = 1.0\ \mathrm{kg},\; E_0 = 98.0\ \mathrm{J}$)",
-        fontsize=15, y=0.98
+    """Generates publication-quality 3D dual-panel visualization in 1940s–50s archival Tufte style."""
+    plt.rcParams.update(
+        {
+            "font.family": "serif",
+            "mathtext.fontset": "cm",
+            "axes.edgecolor": INK_SECONDARY,
+            "axes.linewidth": 0.85,
+            "text.color": INK_PRIMARY,
+        }
     )
 
+    fig = plt.figure(figsize=(19, 9.0), dpi=300, facecolor=ARCHIVAL_PAPER_BG)
+    fig.suptitle(
+        r"$\bf{Dynamical\ Systems\ and\ Ordinary\ Differential\ Equations\ (V.\ I.\ Arnold\ —\ Section\ 1.1.14)}$"
+        + "\n"
+        + r"Free Fall Problem: $\dot{x}_1 = x_2,\; \dot{x}_2 = -g$ ($g = 9.8\ \mathrm{m/s^2},\; m = 1.0\ \mathrm{kg}$)   $\bullet$   "
+        + r"First Integral: $E(x_1, x_2) = \frac{1}{2}mx_2^2 + mgx_1 = 98.0\ \mathrm{J}$",
+        fontsize=14,
+        color=INK_PRIMARY,
+        y=0.97,
+    )
+
+    gs = fig.add_gridspec(1, 2, width_ratios=[1.0, 1.0], wspace=0.14)
+
     # -------------------------------------------------------------------------
-    # PANEL 1: EXTENDED PHASE SPACE
+    # PANEL 1: EXTENDED PHASE SPACE (Fig. 1a)
     # -------------------------------------------------------------------------
-    ax1 = fig.add_subplot(1, 2, 1, projection='3d')
+    ax1 = fig.add_subplot(gs[0, 0], projection='3d')
+    ax1.set_facecolor(ARCHIVAL_PAPER_BG)
+
+    for axis in (ax1.xaxis, ax1.yaxis, ax1.zaxis):
+        axis.pane.fill = False
+        axis.pane.set_edgecolor(RULE_HAIRLINE)
+        axis._axinfo["grid"]["color"] = (0.78, 0.75, 0.66, 0.45)
+        axis._axinfo["grid"]["linestyle"] = ":"
+        axis._axinfo["grid"]["linewidth"] = 0.65
+
     ax1.set_title(
-        r"$\bf{Panel\ 1:\ Extended\ Phase\ Space\ \mathbb{R} \times \mathbb{R}^2}$" + "\n"
-        r"Parabolic Cylinder $x_1 = \frac{E_0}{mg} - \frac{1}{2g}x_2^2$, Trajectory $\gamma(t)$ and Projection onto $t=0$",
-        fontsize=11, pad=10
+        r"$\bf{Fig.\ 1a.\ \ Extended\ Phase\ Space\ \mathbb{R} \times \mathbb{R}^2\ (t,\ x_1,\ x_2)}$" + "\n"
+        r"Parabolic Cylinder $x_1 = \frac{E_0}{mg} - \frac{1}{2g}x_2^2$, Integral Curve $\gamma(t)$ & Projection ($t=0$)",
+        fontsize=11.5,
+        color=INK_PRIMARY,
+        y=1.02,
+        pad=0,
     )
 
-    # 2D Invariant Surface (Parabolic Cylinder)
-    surf1 = ax1.plot_surface(
+    # 2D Invariant Surface (Parabolic Cylinder in Muted Sepia Wash)
+    ax1.plot_surface(
         T_mesh, X1_mesh, X2_mesh,
-        cmap=cm.coolwarm, alpha=0.38, edgecolor='none', antialiased=True
+        color=INK_OCHRE, alpha=0.11, edgecolor='none', antialiased=True
     )
 
-    # 3D Integral Curve gamma(t)
+    # 3D Integral Curve gamma(t) in Carmine Vermilion Ink
     ax1.plot(
         t_curve, x1_curve, x2_curve,
-        color='red', linewidth=3.5, label=r'Integral Curve $\gamma(t) = (t, x_1(t), x_2(t))$'
+        color=INK_VERMILION, linewidth=2.8, label=r'Integral Curve $\gamma(t) = (t, x_1(t), x_2(t))$'
     )
 
-    # Projection onto lateral wall t = 0 (Phase Parabola)
+    # Projection onto lateral wall t = 0 (Phase Parabola in Prussian Cobalt Ink)
     ax1.plot(
         np.zeros_like(x1_curve), x1_curve, x2_curve,
-        color='purple', linewidth=3.0, linestyle='-', label=r'Phase Projection onto $t=0$'
+        color=INK_COBALT, linewidth=2.0, linestyle='--', label=r'Phase Projection ($t=0$)'
     )
 
     # Orthogonal projection drop lines connecting gamma(t) to shadow at t = 0
     for tk, x1k, x2k in zip(t_proj_pts, x1_proj_pts, x2_proj_pts):
-        ax1.plot([tk, 0.0], [x1k, x1k], [x2k, x2k], color='gray', linestyle='--', linewidth=1.2)
+        ax1.plot([tk, 0.0], [x1k, x1k], [x2k, x2k], color=INK_MUTED, linestyle=':', linewidth=1.0, alpha=0.75)
 
-    # Key singular points
-    ax1.scatter([0.0], [x0], [v0], color='green', s=60, zorder=5, label=r'Start $t=0$')
-    ax1.scatter([v0 / g], [E0 / (m * g)], [0.0], color='gold', s=60, zorder=5, label=r'Apex $x_2=0$')
-    ax1.scatter([t_max], [x1_curve[-1]], [x2_curve[-1]], color='darkred', s=60, zorder=5, label=r'End $t=3$')
+    # Key characteristic nodes (Classic Hollow Technical Fixed-Point Rings)
+    node_t = [0.0, v0 / g, t_max]
+    node_x1 = [x0, E0 / (m * g), x1_curve[-1]]
+    node_x2 = [v0, 0.0, x2_curve[-1]]
+    ax1.scatter(
+        node_t, node_x1, node_x2,
+        color=ARCHIVAL_PAPER_BG, edgecolor=INK_PRIMARY, s=48, linewidth=1.6, depthshade=False, zorder=6,
+        label=r'Characteristic Nodes ($t=0$, Apex, $t=3$)'
+    )
 
-    # Extended vector field V_tilde on cylinder surface
+    # Extended vector field V_tilde on cylinder surface in Ochre Ink
     ax1.quiver(
         T_vec, X1_vec, X2_vec,
         U_t_n, U_x1_n, U_x2_n,
-        color='darkorange', length=1.0, normalize=False, arrow_length_ratio=0.35, linewidth=1.2,
+        color=INK_OCHRE, length=1.0, normalize=False, arrow_length_ratio=0.32, linewidth=1.0, alpha=0.8,
         label=r'Extended Field $\tilde{V} = (1, x_2, -g)$'
     )
 
-    # 2D Autonomous vector field on wall t = 0
+    # 2D Autonomous vector field on wall t = 0 in Forest Ink
     ax1.quiver(
         T_g2d, X1_g2d, X2_g2d,
         np.zeros_like(Vx1_n), Vx1_n, Vx2_n,
-        color='darkgreen', length=1.0, normalize=False, arrow_length_ratio=0.35, linewidth=1.1,
+        color=INK_FOREST, length=1.0, normalize=False, arrow_length_ratio=0.32, linewidth=0.95, alpha=0.8,
         label=r'Phase Field $V = (x_2, -g)$ at $t=0$'
     )
 
-    ax1.set_xlabel(r'$t$ [Time (s)]', labelpad=10, fontsize=10)
-    ax1.set_ylabel(r'$x_1$ [Position (m)]', labelpad=10, fontsize=10)
-    ax1.set_zlabel(r'$x_2$ [Velocity (m/s)]', labelpad=10, fontsize=10)
+    ax1.set_xlabel(r'$t$ [Time (s)]', labelpad=10, fontsize=10.5, color=INK_PRIMARY)
+    ax1.set_ylabel(r'$x_1$ [Position (m)]', labelpad=10, fontsize=10.5, color=INK_PRIMARY)
+    ax1.set_zlabel(r'$x_2$ [Velocity (m/s)]', labelpad=10, fontsize=10.5, color=INK_PRIMARY)
+    ax1.tick_params(colors=INK_SECONDARY, labelsize=9)
     ax1.view_init(elev=24, azim=-125)
-    ax1.legend(loc='upper left', bbox_to_anchor=(-0.05, 0.95), fontsize=8, framealpha=0.85)
+    ax1.legend(
+        loc='upper left',
+        bbox_to_anchor=(-0.02, 0.94),
+        fontsize=8.5,
+        frameon=True,
+        facecolor=ARCHIVAL_PAPER_BG,
+        framealpha=0.88,
+        edgecolor='none',
+        labelcolor=INK_PRIMARY,
+    )
 
     # -------------------------------------------------------------------------
-    # PANEL 2: FIRST INTEGRAL RELIEF (ENERGY SURFACE)
+    # PANEL 2: FIRST INTEGRAL RELIEF (Fig. 1b)
     # -------------------------------------------------------------------------
-    ax2 = fig.add_subplot(1, 2, 2, projection='3d')
+    ax2 = fig.add_subplot(gs[0, 1], projection='3d')
+    ax2.set_facecolor(ARCHIVAL_PAPER_BG)
+
+    for axis in (ax2.xaxis, ax2.yaxis, ax2.zaxis):
+        axis.pane.fill = False
+        axis.pane.set_edgecolor(RULE_HAIRLINE)
+        axis._axinfo["grid"]["color"] = (0.78, 0.75, 0.66, 0.45)
+        axis._axinfo["grid"]["linestyle"] = ":"
+        axis._axinfo["grid"]["linewidth"] = 0.65
+
     ax2.set_title(
-        r"$\bf{Panel\ 2:\ First\ Integral\ Relief\ (x_1, x_2, E)}$" + "\n"
-        r"Energy Surface $E(x_1, x_2) = \frac{1}{2}mx_2^2 + mgx_1$, Section $E=E_0$ and Base Level Curve",
-        fontsize=11, pad=10
+        r"$\bf{Fig.\ 1b.\ \ First\ Integral\ Relief\ (x_1,\ x_2,\ E)}$" + "\n"
+        r"Energy Surface $E(x_1, x_2) = \frac{1}{2}mx_2^2 + mgx_1$, Cutting Plane $E=E_0$ & Base Orbit",
+        fontsize=11.5,
+        color=INK_PRIMARY,
+        y=1.02,
+        pad=0,
     )
 
-    # Mechanical Energy Surface E(x_1, x_2)
-    surf2 = ax2.plot_surface(
+    # Mechanical Energy Surface E(x_1, x_2) in Subtle Archival Sepia-Cobalt Wash
+    ax2.plot_surface(
         X1_E, X2_E, Energy_Surface,
-        cmap=cm.viridis, alpha=0.55, edgecolor='none', antialiased=True
+        cmap=ARCHIVAL_CMAP, alpha=0.22, edgecolor='none', antialiased=True
     )
 
-    # Constant Energy Horizontal Plane E = E0
-    plane2 = ax2.plot_surface(
+    # Constant Energy Horizontal Plane E = E0 in Subtle Warm Ochre
+    ax2.plot_surface(
         X1_E, X2_E, Plane_E0,
-        color='gold', alpha=0.35, edgecolor='none'
+        color=INK_OCHRE, alpha=0.12, edgecolor='none'
     )
 
-    # 3D Intersection Level Curve at E = E0
+    # 3D Intersection Level Curve at E = E0 in Carmine Vermilion Ink
     ax2.plot(
         x1_iso, x2_iso, E_iso,
-        color='magenta', linewidth=3.5, label=r'Level Curve $E(x_1, x_2) = E_0$'
+        color=INK_VERMILION, linewidth=2.8, label=r'Level Curve $E(x_1, x_2) = E_0$'
     )
 
-    # Projection onto Base Plane E = E_base (Phase Orbit)
+    # Projection onto Base Plane E = E_base (Phase Orbit in Prussian Cobalt Ink)
     ax2.plot(
         x1_iso, x2_iso, E_proj_base,
-        color='purple', linewidth=3.0, linestyle='-', label=r'Base Projection ($E=0$): Phase Orbit'
+        color=INK_COBALT, linewidth=2.0, linestyle='--', label=r'Base Projection ($E=0$): Phase Orbit'
     )
 
     # Vertical drop lines connecting 3D level curve to base projection
     for idx in sample_indices:
         x1_val = x1_iso[idx]
         x2_val = x2_iso[idx]
-        ax2.plot([x1_val, x1_val], [x2_val, x2_val], [E0, E_base], color='gray', linestyle='--', linewidth=1.2)
+        ax2.plot([x1_val, x1_val], [x2_val, x2_val], [E0, E_base], color=INK_MUTED, linestyle=':', linewidth=1.0, alpha=0.75)
 
-    # Autonomous Phase Vector Field on Base Plane
+    # Autonomous Phase Vector Field on Base Plane in Forest Ink
     ax2.quiver(
         X1_EB, X2_EB, E_EB,
         EB_Vx1_n, EB_Vx2_n, np.zeros_like(EB_Vx1_n),
-        color='darkgreen', length=1.0, normalize=False, arrow_length_ratio=0.35, linewidth=1.1,
+        color=INK_FOREST, length=1.0, normalize=False, arrow_length_ratio=0.32, linewidth=0.95, alpha=0.8,
         label=r'Field $V = (x_2, -g)$ at Base'
     )
 
-    ax2.set_xlabel(r'$x_1$ [Position (m)]', labelpad=10, fontsize=10)
-    ax2.set_ylabel(r'$x_2$ [Velocity (m/s)]', labelpad=10, fontsize=10)
-    ax2.set_zlabel(r'$E$ [Energy (J)]', labelpad=10, fontsize=10)
+    ax2.set_xlabel(r'$x_1$ [Position (m)]', labelpad=10, fontsize=10.5, color=INK_PRIMARY)
+    ax2.set_ylabel(r'$x_2$ [Velocity (m/s)]', labelpad=10, fontsize=10.5, color=INK_PRIMARY)
+    ax2.set_zlabel(r'$E$ [Energy (J)]', labelpad=10, fontsize=10.5, color=INK_PRIMARY)
+    ax2.tick_params(colors=INK_SECONDARY, labelsize=9)
     ax2.view_init(elev=28, azim=-55)
-    ax2.legend(loc='upper right', bbox_to_anchor=(1.05, 0.95), fontsize=8, framealpha=0.85)
+    ax2.legend(
+        loc='upper right',
+        bbox_to_anchor=(1.02, 0.94),
+        fontsize=8.5,
+        frameon=True,
+        facecolor=ARCHIVAL_PAPER_BG,
+        framealpha=0.88,
+        edgecolor='none',
+        labelcolor=INK_PRIMARY,
+    )
 
-    plt.tight_layout(rect=[0, 0, 1, 0.94])
+    fig.subplots_adjust(left=0.04, right=0.96, bottom=0.06, top=0.82, wspace=0.14)
     return fig
 
 
@@ -643,8 +787,6 @@ def build_matplotlib_figure():
 # 5. MAIN EXECUTION
 # =============================================================================
 if __name__ == "__main__":
-    from pathlib import Path
-
     script_dir = Path(__file__).resolve().parent
     pictures_dir = script_dir.parent / "pictures"
     pictures_dir.mkdir(parents=True, exist_ok=True)
@@ -652,13 +794,13 @@ if __name__ == "__main__":
     print("\n[1/2] Generating interactive 3D visualization via Plotly...")
     plotly_fig = build_plotly_figure()
     html_filepath = script_dir / "free_fall_arnold_3d.html"
-    plotly_fig.write_html(str(html_filepath), include_plotlyjs="cdn")
+    save_archival_plotly_html(plotly_fig, html_filepath)
     print(f" -> Success! Interactive HTML file saved as: '{html_filepath}'")
 
     print("\n[2/2] Generating high-resolution 3D visualization via Matplotlib...")
     mpl_fig = build_matplotlib_figure()
     png_filepath = pictures_dir / "free_fall_arnold_3d.png"
-    mpl_fig.savefig(str(png_filepath), dpi=300, bbox_inches="tight")
+    mpl_fig.savefig(str(png_filepath), dpi=300, bbox_inches="tight", facecolor=mpl_fig.get_facecolor())
     print(f" -> Success! High-resolution image saved as: '{png_filepath}'")
 
     print("\nProcess successfully completed!")
