@@ -41,7 +41,8 @@ ode_arnold/
 │   └── scripts/                                 # Standalone Python scripts & interactive HTML
 │       ├── free_fall_3d_arnold.py
 │       ├── free_fall_arnold_3d.html
-│       └── small_oscillations_arnold.py
+│       ├── small_oscillations_arnold.py
+│       └── small_oscillations_arnold_interactive.html
 ├── requirements.txt                             # Python dependencies
 └── README.md                                    # Repository overview and documentation
 ```
@@ -91,7 +92,7 @@ pip install -r requirements.txt
 
 ### 4. Run the code
 - **Jupyter Notebooks**: Open any notebook in VS Code or Jupyter Lab (e.g. `chapter_1/1.1.14_example_free-fall.ipynb` or `chapter_1/1.1.15_example_small-oscillations.ipynb`).
-- **Interactive 3D HTML**: Open [`chapter_1/scripts/free_fall_arnold_3d.html`](chapter_1/scripts/free_fall_arnold_3d.html) in any web browser to rotate, pan, and zoom the 3D model with full WebGL hardware acceleration.
+- **Interactive 3D / Real-Time HTML**: Open [`chapter_1/scripts/free_fall_arnold_3d.html`](chapter_1/scripts/free_fall_arnold_3d.html) or [`chapter_1/scripts/small_oscillations_arnold_interactive.html`](chapter_1/scripts/small_oscillations_arnold_interactive.html) in any web browser.
 - **Standalone Python Scripts**:
   ```bash
   python chapter_1/scripts/free_fall_3d_arnold.py
