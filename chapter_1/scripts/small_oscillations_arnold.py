@@ -504,7 +504,10 @@ def build_matplotlib_figure(config: OscillatorConfig | None = None) -> Figure:
 # 4. MAIN EXECUTION ENTRY POINT
 # =============================================================================
 if __name__ == "__main__":
-    output_path = Path(__file__).resolve().parent / "small_oscillations_arnold.png"
+    script_dir = Path(__file__).resolve().parent
+    pictures_dir = script_dir.parent / "pictures"
+    pictures_dir.mkdir(parents=True, exist_ok=True)
+    output_path = pictures_dir / "small_oscillations_arnold.png"
     figure = build_matplotlib_figure()
     figure.savefig(output_path, dpi=300, bbox_inches="tight", facecolor="white")
     print(f"Saved publication-ready figure to: '{output_path}'")

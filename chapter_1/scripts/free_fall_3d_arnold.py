@@ -16,8 +16,8 @@ This script constructs a side-by-side dual-panel 3D visualization:
   demonstrating geometrically that phase curves are level curves of mechanical energy.
 
 Outputs:
-1. Interactive HTML 3D visualization via Plotly: 'free_fall_arnold_3d.html'
-2. High-resolution publication-quality image via Matplotlib: 'free_fall_arnold_3d.png'
+1. Interactive HTML 3D visualization via Plotly: 'scripts/free_fall_arnold_3d.html'
+2. High-resolution publication-quality image via Matplotlib: 'pictures/free_fall_arnold_3d.png'
 """
 
 import numpy as np
@@ -643,16 +643,22 @@ def build_matplotlib_figure():
 # 5. MAIN EXECUTION
 # =============================================================================
 if __name__ == "__main__":
+    from pathlib import Path
+
+    script_dir = Path(__file__).resolve().parent
+    pictures_dir = script_dir.parent / "pictures"
+    pictures_dir.mkdir(parents=True, exist_ok=True)
+
     print("\n[1/2] Generating interactive 3D visualization via Plotly...")
     plotly_fig = build_plotly_figure()
-    html_filename = "free_fall_arnold_3d.html"
-    plotly_fig.write_html(html_filename, include_plotlyjs="cdn")
-    print(f" -> Success! Interactive HTML file saved as: '{html_filename}'")
+    html_filepath = script_dir / "free_fall_arnold_3d.html"
+    plotly_fig.write_html(str(html_filepath), include_plotlyjs="cdn")
+    print(f" -> Success! Interactive HTML file saved as: '{html_filepath}'")
 
     print("\n[2/2] Generating high-resolution 3D visualization via Matplotlib...")
     mpl_fig = build_matplotlib_figure()
-    png_filename = "free_fall_arnold_3d.png"
-    mpl_fig.savefig(png_filename, dpi=300, bbox_inches='tight')
-    print(f" -> Success! High-resolution image saved as: '{png_filename}'")
+    png_filepath = pictures_dir / "free_fall_arnold_3d.png"
+    mpl_fig.savefig(str(png_filepath), dpi=300, bbox_inches="tight")
+    print(f" -> Success! High-resolution image saved as: '{png_filepath}'")
 
     print("\nProcess successfully completed!")

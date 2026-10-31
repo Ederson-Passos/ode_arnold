@@ -7,7 +7,7 @@
 
 ### 3D Visualization of Free Fall (Chapter 1, Example 1.1.14)
 
-![Cover: Free Fall 3D Extended Phase Space and Energy Relief](chapter_1/free_fall_arnold_3d.png)
+![Cover: Free Fall 3D Extended Phase Space and Energy Relief](chapter_1/pictures/free_fall_arnold_3d.png)
 
 *Figure: Dual-panel 3D visualization of the free fall problem in extended phase space and mechanical energy relief (Chapter 1, Example 1.1.14). Source: Produced by the author.*
 
@@ -34,9 +34,14 @@ ode_arnold/
 │   ├── 1.1.8_example_the-logistic-curve.ipynb   # Logistic equation: x' = x(1 - x)
 │   ├── 1.1.9_example_harvest-quotas.ipynb       # Population dynamics with harvesting quotas
 │   ├── 1.1.14_example_free-fall.ipynb           # Free fall in extended phase space and energy relief
-│   ├── free_fall_3d_arnold.py                   # Standalone 3D visualization script (Plotly & Matplotlib)
-│   ├── free_fall_arnold_3d.html                 # Interactive 3D WebGL visualization (Plotly)
-│   └── free_fall_arnold_3d.png                  # Publication-quality 300 DPI 3D rendering
+│   ├── 1.1.15_example_small-oscillations.ipynb  # Small oscillations (harmonic oscillator)
+│   ├── pictures/                                # High-resolution publication renderings
+│   │   ├── free_fall_arnold_3d.png
+│   │   └── small_oscillations_arnold.png
+│   └── scripts/                                 # Standalone Python scripts & interactive HTML
+│       ├── free_fall_3d_arnold.py
+│       ├── free_fall_arnold_3d.html
+│       └── small_oscillations_arnold.py
 ├── requirements.txt                             # Python dependencies
 └── README.md                                    # Repository overview and documentation
 ```
@@ -85,11 +90,12 @@ pip install -r requirements.txt
 ```
 
 ### 4. Run the code
-- **Jupyter Notebooks**: Open any notebook in VS Code or Jupyter Lab (e.g. `chapter_1/1.1.14_example_free-fall.ipynb`).
-- **Interactive 3D HTML**: Open [`chapter_1/free_fall_arnold_3d.html`](chapter_1/free_fall_arnold_3d.html) in any web browser to rotate, pan, and zoom the 3D model with full WebGL hardware acceleration.
-- **Standalone Python Script**:
+- **Jupyter Notebooks**: Open any notebook in VS Code or Jupyter Lab (e.g. `chapter_1/1.1.14_example_free-fall.ipynb` or `chapter_1/1.1.15_example_small-oscillations.ipynb`).
+- **Interactive 3D HTML**: Open [`chapter_1/scripts/free_fall_arnold_3d.html`](chapter_1/scripts/free_fall_arnold_3d.html) in any web browser to rotate, pan, and zoom the 3D model with full WebGL hardware acceleration.
+- **Standalone Python Scripts**:
   ```bash
-  python chapter_1/free_fall_3d_arnold.py
+  python chapter_1/scripts/free_fall_3d_arnold.py
+  python chapter_1/scripts/small_oscillations_arnold.py
   ```
 
 ---
