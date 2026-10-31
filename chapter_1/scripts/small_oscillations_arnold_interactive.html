@@ -3,30 +3,33 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>1.1.15 Small Oscillations — V. I. Arnold Interactive Dynamical System</title>
+  <title>§1.1.15 Small Oscillations — V. I. Arnold (Archival Tufte Edition)</title>
   <!-- Plotly.js CDN -->
   <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
-  <!-- Google Fonts: Inter & JetBrains Mono for scientific telemetry -->
+  <!-- Google Fonts: EB Garamond (1940s/50s Monograph Serif) & IBM Plex Mono (Tabular Typewriter Telemetry) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
   <style>
+    /* =========================================================================
+       1940s–1950s ARCHIVAL SCIENTIFIC PAPER PALETTE & TUFTE MINIMALIST TOKENS
+       High data-ink ratio, zero chartjunk, warm cotton-rag paper & India ink.
+       ========================================================================= */
     :root {
-      --bg-primary: #090d16;
-      --bg-panel: #111827;
-      --bg-panel-header: #162032;
-      --border-subtle: #1f2937;
-      --border-highlight: #334155;
-      --text-primary: #f8fafc;
-      --text-secondary: #94a3b8;
-      --text-muted: #64748b;
-      --accent-cyan: #38bdf8;
-      --accent-orange: #f97316;
-      --accent-emerald: #10b981;
-      --accent-purple: #a855f7;
-      --accent-crimson: #ef4444;
-      --accent-amber: #eab308;
+      --paper-bg: #f5efe0;          /* Warm 1940s archival rag paper */
+      --paper-elevated: #faf6eb;    /* Subtle cream plate surface */
+      --ink-primary: #191715;       /* Carbon / India ink black */
+      --ink-secondary: #47423b;     /* Charcoal letterpress secondary ink */
+      --ink-muted: #787064;         /* Diluted sepia drafting lead */
+      --rule-hairline: #cfc6b2;     /* Fine archival hairline divider */
+      --rule-strong: #2b2723;       /* Primary monograph double-rule ink */
+
+      /* Vintage Technical Lithograph Inks (High-contrast on warm cream paper) */
+      --ink-cobalt: #1b4965;        /* Prussian / Cobalt Blue — Position x1 */
+      --ink-vermilion: #9e2a2b;     /* Carmine / Vermilion Red — Velocity x2 */
+      --ink-forest: #2d5a27;        /* Olive / Forest Ink — Force F & Energy E */
+      --ink-ochre: #8c5a16;         /* Warm Ochre — Turning points & Bounds */
     }
 
     * {
@@ -36,220 +39,246 @@
     }
 
     body {
-      background-color: var(--bg-primary);
-      color: var(--text-primary);
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--paper-bg);
+      /* Subtle vintage paper fiber warmth via radial gradient */
+      background-image: radial-gradient(circle at 50% 35%, #faf6eb 0%, #f5efe0 70%, #ede4cf 100%);
+      color: var(--ink-primary);
+      font-family: 'EB Garamond', 'Palatino Linotype', 'Book Antiqua', Georgia, serif;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+      padding: 14px 32px 22px;
       overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
     }
 
     /* =========================================================================
-       TOP ACADEMIC HEADER & TELEMETRY BAR
+       MONOGRAPH RUNNING HEADER & TUFTE TABULAR TELEMETRY (ZERO BOX CHARTJUNK)
        ========================================================================= */
     header {
-      background: linear-gradient(180deg, #0f172a 0%, #090d16 100%);
-      border-bottom: 1px solid var(--border-subtle);
-      padding: 12px 24px;
+      border-top: 2px solid var(--rule-strong);
+      border-bottom: 1px solid var(--rule-strong);
+      padding: 10px 0 10px;
       display: flex;
       flex-wrap: wrap;
-      align-items: center;
+      align-items: baseline;
       justify-content: space-between;
-      gap: 16px;
+      gap: 20px;
+    }
+
+    .journal-running-head {
+      font-size: 0.74rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink-secondary);
+      font-weight: 600;
+      margin-bottom: 2px;
     }
 
     .title-block h1 {
-      font-size: 1.15rem;
-      font-weight: 700;
+      font-size: 1.48rem;
+      font-weight: 600;
       letter-spacing: -0.01em;
-      color: var(--text-primary);
-      display: flex;
-      align-items: center;
-      gap: 10px;
+      color: var(--ink-primary);
+      line-height: 1.15;
     }
 
-    .title-badge {
-      background: rgba(56, 189, 248, 0.12);
-      color: var(--accent-cyan);
-      border: 1px solid rgba(56, 189, 248, 0.3);
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.75rem;
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-weight: 600;
+    .title-block h1 em {
+      font-style: italic;
+      font-weight: 400;
     }
 
     .title-block p {
-      font-size: 0.82rem;
-      color: var(--text-secondary);
-      margin-top: 3px;
-      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.96rem;
+      color: var(--ink-secondary);
+      margin-top: 2px;
+      font-style: italic;
     }
 
-    /* Live Mathematical Readout Pill Bar */
+    /* Tufte Borderless Tabular Readout Strip */
     .telemetry-strip {
       display: flex;
-      align-items: center;
-      gap: 12px;
+      align-items: baseline;
+      gap: 22px;
       flex-wrap: wrap;
     }
 
-    .metric-pill {
-      background: var(--bg-panel);
-      border: 1px solid var(--border-subtle);
-      border-radius: 6px;
-      padding: 6px 12px;
+    .metric-item {
       display: flex;
       flex-direction: column;
-      min-width: 112px;
+      border-left: 1px solid var(--rule-hairline);
+      padding-left: 14px;
+      min-width: 102px;
+    }
+
+    .metric-item:first-child {
+      border-left: none;
+      padding-left: 0;
     }
 
     .metric-label {
-      font-size: 0.68rem;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--text-muted);
-      font-weight: 600;
+      font-size: 0.78rem;
+      font-style: italic;
+      color: var(--ink-secondary);
     }
 
     .metric-value {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.92rem;
-      font-weight: 600;
-      margin-top: 2px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-variant-numeric: tabular-nums;
+      font-size: 0.94rem;
+      font-weight: 500;
+      margin-top: 1px;
     }
 
-    .val-t { color: var(--text-primary); }
-    .val-x1 { color: var(--accent-cyan); }
-    .val-x2 { color: var(--accent-orange); }
-    .val-e { color: var(--accent-emerald); }
+    .val-t  { color: var(--ink-primary); }
+    .val-x1 { color: var(--ink-cobalt); }
+    .val-x2 { color: var(--ink-vermilion); }
+    .val-e  { color: var(--ink-forest); }
 
     /* =========================================================================
-       INTERACTIVE CONTROLS TOOLBAR
+       MINIMALIST TUFTE INSTRUMENT BAR (HAIRLINE RULES ONLY)
        ========================================================================= */
     .controls-bar {
-      background: #0d1320;
-      border-bottom: 1px solid var(--border-subtle);
-      padding: 8px 24px;
+      border-bottom: 1px solid var(--rule-hairline);
+      padding: 7px 0;
       display: flex;
       flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
       gap: 16px;
+      font-size: 0.9rem;
     }
 
     .control-group {
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 18px;
       flex-wrap: wrap;
     }
 
     .btn {
-      background: var(--bg-panel);
-      color: var(--text-primary);
-      border: 1px solid var(--border-highlight);
-      border-radius: 5px;
-      padding: 6px 14px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      font-family: 'Inter', sans-serif;
+      background: transparent;
+      color: var(--ink-primary);
+      border: 1px solid var(--ink-secondary);
+      padding: 3px 12px;
+      font-size: 0.84rem;
+      font-family: 'EB Garamond', Georgia, serif;
+      letter-spacing: 0.02em;
       cursor: pointer;
-      transition: all 0.15s ease;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
+      transition: background-color 0.12s ease, color 0.12s ease;
     }
 
     .btn:hover {
-      background: #1e293b;
-      border-color: var(--accent-cyan);
+      background: rgba(25, 23, 21, 0.07);
     }
 
-    .btn-primary {
-      background: rgba(56, 189, 248, 0.15);
-      border-color: var(--accent-cyan);
-      color: var(--accent-cyan);
-    }
-
+    .btn-primary,
     .btn-active {
-      background: rgba(249, 115, 22, 0.18);
-      border-color: var(--accent-orange);
-      color: var(--accent-orange);
+      background: var(--ink-primary);
+      color: var(--paper-bg);
+      border-color: var(--ink-primary);
+    }
+
+    .btn-primary:hover,
+    .btn-active:hover {
+      background: #332f2a;
     }
 
     .slider-control {
       display: flex;
       align-items: center;
-      gap: 8px;
-      font-size: 0.78rem;
-      color: var(--text-secondary);
-      background: var(--bg-panel);
-      padding: 4px 10px;
-      border-radius: 5px;
-      border: 1px solid var(--border-subtle);
+      gap: 7px;
+      color: var(--ink-secondary);
+      font-size: 0.88rem;
+    }
+
+    .slider-control label {
+      font-style: italic;
     }
 
     .slider-control span.mono {
-      font-family: 'JetBrains Mono', monospace;
-      color: var(--text-primary);
-      font-weight: 600;
-      min-width: 34px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-variant-numeric: tabular-nums;
+      color: var(--ink-primary);
+      font-size: 0.8rem;
+      font-weight: 500;
+      min-width: 32px;
       text-align: right;
     }
 
+    /* Ultra-clean minimalist range input */
     input[type="range"] {
-      accent-color: var(--accent-cyan);
+      -webkit-appearance: none;
+      appearance: none;
+      background: transparent;
       cursor: pointer;
-      width: 95px;
+      width: 84px;
+    }
+
+    input[type="range"]::-webkit-slider-runnable-track {
+      height: 1.5px;
+      background: var(--ink-secondary);
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--ink-primary);
+      border: 1.5px solid var(--paper-bg);
+      margin-top: -4.2px;
     }
 
     /* =========================================================================
-       2x2 SYNCHRONIZED SCIENTIFIC DASHBOARD GRID
+       2x2 SMALL MULTIPLES PLATE LAYOUT (NO CARDS, NO SHADOWS, PURE HAIRLINES)
        ========================================================================= */
     .dashboard-grid {
       flex: 1;
       display: grid;
       grid-template-columns: 1fr 1fr;
-      grid-template-rows: 340px minmax(420px, 1fr);
-      gap: 14px;
-      padding: 14px 24px 20px;
+      grid-template-rows: 325px minmax(410px, 1fr);
+      column-gap: 28px;
+      row-gap: 16px;
+      padding-top: 12px;
     }
 
     .panel {
-      background: var(--bg-panel);
-      border: 1px solid var(--border-subtle);
-      border-radius: 8px;
       display: flex;
       flex-direction: column;
-      overflow: hidden;
       position: relative;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+      border-bottom: 1px solid var(--rule-hairline);
+      padding-bottom: 6px;
     }
 
     .panel-header {
-      background: var(--bg-panel-header);
-      border-bottom: 1px solid var(--border-subtle);
-      padding: 8px 14px;
+      padding: 0 0 5px 0;
+      border-bottom: 1px solid rgba(120, 112, 100, 0.25);
       display: flex;
-      align-items: center;
+      align-items: baseline;
       justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
     }
 
     .panel-title {
-      font-size: 0.84rem;
+      font-size: 1.02rem;
       font-weight: 600;
-      color: var(--text-primary);
-      display: flex;
-      align-items: center;
-      gap: 8px;
+      color: var(--ink-primary);
+    }
+
+    .panel-title .fig-num {
+      font-variant: small-caps;
+      letter-spacing: 0.04em;
+      margin-right: 6px;
+      color: var(--ink-secondary);
     }
 
     .panel-subtitle {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.72rem;
-      color: var(--text-secondary);
+      font-size: 0.86rem;
+      font-style: italic;
+      color: var(--ink-secondary);
     }
 
     .panel-body {
@@ -273,24 +302,24 @@
     .legend-inline {
       display: flex;
       align-items: center;
-      gap: 12px;
-      font-size: 0.72rem;
-      font-family: 'JetBrains Mono', monospace;
-      color: var(--text-secondary);
+      gap: 14px;
+      font-size: 0.82rem;
+      font-style: italic;
+      color: var(--ink-secondary);
     }
 
-    .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
+    .ink-swatch {
+      width: 12px;
+      height: 2px;
       display: inline-block;
+      vertical-align: middle;
       margin-right: 4px;
     }
 
     @media (max-width: 1100px) {
       .dashboard-grid {
         grid-template-columns: 1fr;
-        grid-template-rows: 320px 320px 440px 440px;
+        grid-template-rows: 310px 310px 420px 420px;
       }
     }
   </style>
@@ -298,85 +327,83 @@
 <body>
 
   <!-- =========================================================================
-       HEADER & LIVE TELEMETRY
+       1940s/1950s MONOGRAPH HEADER & TUFTE TABULAR TELEMETRY
        ========================================================================= -->
   <header>
     <div class="title-block">
-      <h1>
-        <span class="title-badge">ARNOLD ODE §1.1.15</span>
-        Small Oscillations — Synchronized Physical &amp; Phase-Space Laboratory
-      </h1>
-      <p>Autonomous System: dx₁/dt = x₂ , dx₂/dt = -ω₀²x₁ &nbsp;|&nbsp; First Integral: E(x₁,x₂) = ½(ω₀²x₁² + x₂²) = const</p>
+      <div class="journal-running-head">Ordinary Differential Equations &bull; V. I. Arnold &bull; Chapter 1, §1.1.15</div>
+      <h1>Small Oscillations <em>&mdash; Phase Space &amp; Extended Integral Manifold</em></h1>
+      <p>Autonomous System: dx₁/dt = x₂ ,&nbsp; dx₂/dt = &minus;&omega;₀²x₁ &emsp;&bull;&emsp; First Integral (Conservation of Energy): E(x₁, x₂) = &frac12;(&omega;₀²x₁² + x₂²) = const.</p>
     </div>
 
     <div class="telemetry-strip">
-      <div class="metric-pill">
-        <span class="metric-label">Time (t)</span>
+      <div class="metric-item">
+        <span class="metric-label">Elapsed Time t</span>
         <span class="metric-value val-t" id="readout-t">0.00 s</span>
       </div>
-      <div class="metric-pill">
-        <span class="metric-label">Position x₁(t)</span>
+      <div class="metric-item">
+        <span class="metric-label">Coordinate x₁(t)</span>
         <span class="metric-value val-x1" id="readout-x1">+2.000</span>
       </div>
-      <div class="metric-pill">
+      <div class="metric-item">
         <span class="metric-label">Velocity x₂(t)</span>
-        <span class="metric-value val-x2" id="readout-x2">0.000</span>
+        <span class="metric-value val-x2" id="readout-x2">+0.000</span>
       </div>
-      <div class="metric-pill">
-        <span class="metric-label">Energy E(x₁,x₂)</span>
+      <div class="metric-item">
+        <span class="metric-label">Total Energy E</span>
         <span class="metric-value val-e" id="readout-e">2.0000 J</span>
       </div>
     </div>
   </header>
 
   <!-- =========================================================================
-       CONTROLS BAR
+       MINIMALIST PARAMETERS & VIEW CONTROLS
        ========================================================================= -->
   <div class="controls-bar">
     <div class="control-group">
-      <button class="btn btn-primary" id="btn-play-pause">⏸ Pause</button>
-      <button class="btn" id="btn-reset">↺ Reset (t = 0)</button>
+      <button class="btn btn-primary" id="btn-play-pause">Pause Integration</button>
+      <button class="btn" id="btn-reset">Reset to t = 0</button>
 
       <div class="slider-control">
-        <label for="slider-radius">Initial Radius R₀:</label>
+        <label for="slider-radius">Initial Amplitude R₀:</label>
         <input type="range" id="slider-radius" min="0.5" max="3.0" step="0.1" value="2.0" />
         <span class="mono" id="label-radius">2.0</span>
       </div>
 
       <div class="slider-control">
-        <label for="slider-omega">Frequency ω₀:</label>
+        <label for="slider-omega">Natural Frequency &omega;₀:</label>
         <input type="range" id="slider-omega" min="0.5" max="2.0" step="0.1" value="1.0" />
         <span class="mono" id="label-omega">1.0</span>
       </div>
 
       <div class="slider-control">
-        <label for="slider-speed">Sim Speed:</label>
+        <label for="slider-speed">Time Rate:</label>
         <input type="range" id="slider-speed" min="0.25" max="2.5" step="0.25" value="1.0" />
-        <span class="mono" id="label-speed">1.0×</span>
+        <span class="mono" id="label-speed">1.0&times;</span>
       </div>
     </div>
 
     <div class="control-group">
-      <span style="font-size:0.76rem; color:var(--text-secondary);">Panel 4 View:</span>
-      <button class="btn btn-active" id="btn-mode-2d">2D Waveforms x₁(t), x₂(t)</button>
+      <span style="font-style:italic; color:var(--ink-secondary);">Fig. 2b Projection:</span>
+      <button class="btn btn-active" id="btn-mode-2d">Time-Series Quadrature x₁(t), x₂(t)</button>
       <button class="btn" id="btn-mode-3d">3D Extended Phase Helix (t, x₁, x₂)</button>
     </div>
   </div>
 
   <!-- =========================================================================
-       2x2 SYNCHRONIZED VIEWPORT GRID
+       2x2 SYNCHRONIZED MONOGRAPH PLATES (SMALL MULTIPLES)
        ========================================================================= -->
   <main class="dashboard-grid">
-    <!-- TOP LEFT: HORIZONTAL MASS-SPRING OSCILLATOR -->
+    <!-- PLATE 1A: HORIZONTAL MASS-SPRING OSCILLATOR -->
     <section class="panel">
       <div class="panel-header">
         <div class="panel-title">
-          <span>I. Physical System A — Horizontal Mass-Spring Oscillator</span>
+          <span class="fig-num">Fig. 1a.</span>Horizontal Harmonic Oscillator (d²x₁/dt² + &omega;₀²x₁ = 0)
         </div>
         <div class="legend-inline">
-          <span><i class="dot" style="background:var(--accent-cyan);"></i>Displacement x₁</span>
-          <span><i class="dot" style="background:var(--accent-orange);"></i>Velocity x₂</span>
-          <span><i class="dot" style="background:var(--accent-emerald);"></i>Restoring Force F = -ω₀²x₁</span>
+          <span><i class="ink-swatch" style="background:var(--ink-cobalt);"></i>Position x₁</span>
+          <span><i class="ink-swatch" style="background:var(--ink-vermilion);"></i>Velocity x₂</span>
+          <span><i class="ink-swatch" style="background:var(--ink-forest);"></i>Restoring Force F = &minus;&omega;₀²x₁</span>
         </div>
       </div>
       <div class="panel-body">
@@ -384,15 +411,15 @@
       </div>
     </section>
 
-    <!-- TOP RIGHT: SIMPLE PENDULUM (SMALL-ANGLE APPROXIMATION) -->
+    <!-- PLATE 1B: SIMPLE PENDULUM (ISOMORPHIC SMALL OSCILLATIONS) -->
     <section class="panel">
       <div class="panel-header">
         <div class="panel-title">
-          <span>II. Physical System B — Simple Pendulum (Small Oscillations: θ̈ = -ω₀²θ)</span>
+          <span class="fig-num">Fig. 1b.</span>Isomorphic Simple Pendulum under Linearization (&theta;&#776; + &omega;₀²&theta; = 0)
         </div>
         <div class="legend-inline">
-          <span><i class="dot" style="background:var(--accent-cyan);"></i>Angle θ(t) ∝ x₁(t)</span>
-          <span><i class="dot" style="background:var(--accent-orange);"></i>Angular Velocity θ̇(t) ∝ x₂(t)</span>
+          <span><i class="ink-swatch" style="background:var(--ink-cobalt);"></i>Angular Displacement &theta;(t) &prop; x₁(t)</span>
+          <span><i class="ink-swatch" style="background:var(--ink-vermilion);"></i>Tangential Velocity &theta;&#775;(t) &prop; x₂(t)</span>
         </div>
       </div>
       <div class="panel-body">
@@ -400,26 +427,26 @@
       </div>
     </section>
 
-    <!-- BOTTOM LEFT: 2D PHASE SPACE (x1 vs x2) -->
+    <!-- PLATE 2A: 2D PHASE SPACE (x1 vs x2) -->
     <section class="panel">
       <div class="panel-header">
         <div class="panel-title">
-          <span>III. 2D Phase Space ℝ² (x₁ vs x₂)</span>
+          <span class="fig-num">Fig. 2a.</span>Phase Plane &Ropf;² (x₁, x₂) &amp; Velocity Field V(x₁, x₂) = (x₂, &minus;&omega;₀²x₁)
         </div>
-        <div class="panel-subtitle">Vector Field V(x₁,x₂) = (x₂, -ω₀²x₁) &amp; Active Phase Orbit</div>
+        <div class="panel-subtitle">Concentric Energy Level Curves &frac12;(&omega;₀²x₁² + x₂²) = E₀</div>
       </div>
       <div class="panel-body">
         <div id="plot-phase-2d" class="plotly-container"></div>
       </div>
     </section>
 
-    <!-- BOTTOM RIGHT: TIME-SERIES WAVEFORMS / 3D EXTENDED PHASE SPACE HELIX -->
+    <!-- PLATE 2B: TIME-SERIES WAVEFORMS / 3D EXTENDED PHASE SPACE HELIX -->
     <section class="panel">
       <div class="panel-header">
         <div class="panel-title">
-          <span id="panel4-title">IV. Real-Time Extended State Evolution — Waveforms x₁(t) &amp; x₂(t)</span>
+          <span class="fig-num">Fig. 2b.</span><span id="panel4-title">Extended State Evolution &mdash; Harmonic Quadrature x₁(t) &amp; x₂(t)</span>
         </div>
-        <div class="panel-subtitle" id="panel4-subtitle">Harmonic Quadrature: x₁(t) = R₀ cos(ω₀t), x₂(t) = -R₀ω₀ sin(ω₀t)</div>
+        <div class="panel-subtitle" id="panel4-subtitle">x₁(t) = R₀ cos(&omega;₀t), &nbsp; x₂(t) = &minus;R₀&omega;₀ sin(&omega;₀t)</div>
       </div>
       <div class="panel-body">
         <div id="plot-extended" class="plotly-container"></div>
@@ -434,51 +461,43 @@
     "use strict";
 
     /**
+     * Archival Ink Palette Constants for Canvas & Plotly Renderers
+     */
+    const ARCHIVAL_PALETTE = Object.freeze({
+      paperBg: "#f5efe0",
+      inkPrimary: "#191715",
+      inkSecondary: "#47423b",
+      inkMuted: "#787064",
+      ruleHairline: "rgba(120, 112, 100, 0.22)",
+      cobalt: "#1b4965",
+      vermilion: "#9e2a2b",
+      forest: "#2d5a27",
+      ochre: "#8c5a16"
+    });
+
+    /**
      * =========================================================================
      * LAYER 1: MATHEMATICAL DOMAIN & RK4 NUMERICAL INTEGRATOR
      * Strictly decoupled from DOM, Canvas, and Plotly rendering APIs.
      * =========================================================================
      */
     class HarmonicOscillatorODE {
-      /**
-       * @param {number} omega - Natural angular frequency omega_0
-       */
       constructor(omega = 1.0) {
         this.omega = omega;
       }
 
-      /**
-       * Evaluates the autonomous phase velocity vector field V(x1, x2) = [x2, -omega^2 * x1]
-       * @param {number} _t - Time (autonomous, unused)
-       * @param {number[]} state - [x1, x2]
-       * @returns {number[]} [dx1/dt, dx2/dt]
-       */
       evaluate(_t, state) {
         const x1 = state[0];
         const x2 = state[1];
         return [x2, -(this.omega * this.omega) * x1];
       }
 
-      /**
-       * Computes conserved mechanical energy (First Integral) E(x1, x2)
-       * @param {number} x1
-       * @param {number} x2
-       * @returns {number}
-       */
       energy(x1, x2) {
         return 0.5 * (this.omega * this.omega * x1 * x1 + x2 * x2);
       }
     }
 
     class RungeKutta4Integrator {
-      /**
-       * Advances state [x1, x2] by dt using classical 4th-order Runge-Kutta (RK4)
-       * @param {HarmonicOscillatorODE} ode
-       * @param {number} t
-       * @param {number[]} state
-       * @param {number} dt
-       * @returns {number[]} Next state [x1_next, x2_next]
-       */
       static step(ode, t, state, dt) {
         const [x1, x2] = state;
 
@@ -502,10 +521,6 @@
       }
     }
 
-    /**
-     * Manages simulation state (t, x1, x2), sub-stepped RK4 integration,
-     * and bounded sliding-window trajectory history.
-     */
     class PhysicsEngine {
       constructor({ initialRadius = 2.0, omega = 1.0, windowDuration = 4.0 * Math.PI } = {}) {
         this.initialRadius = initialRadius;
@@ -538,10 +553,6 @@
         }
       }
 
-      /**
-       * Advances the ODE state by deltaSeconds using 8 RK4 substeps for near-exact energy conservation.
-       * @param {number} deltaSeconds
-       */
       advance(deltaSeconds) {
         const subSteps = 8;
         const h = deltaSeconds / subSteps;
@@ -554,9 +565,11 @@
         this.historyX1.push(this.state[0]);
         this.historyX2.push(this.state[1]);
 
-        // Keep history within rolling window [t - windowDuration, t]
         const minTime = this.t - this.windowDuration;
-        while (this.historyT.length > this.maxHistoryPoints || (this.historyT.length > 2 && this.historyT[0] < minTime)) {
+        while (
+          this.historyT.length > this.maxHistoryPoints ||
+          (this.historyT.length > 2 && this.historyT[0] < minTime)
+        ) {
           this.historyT.shift();
           this.historyX1.shift();
           this.historyX2.shift();
@@ -584,7 +597,8 @@
 
     /**
      * =========================================================================
-     * LAYER 2: HTML5 CANVAS PHYSICAL SYSTEM RENDERERS
+     * LAYER 2: TUFTE HIGH DATA-INK HTML5 CANVAS RENDERERS
+     * Zero background grid chartjunk; crisp 1940s/50s technical drafting ink.
      * =========================================================================
      */
     class BaseCanvasRenderer {
@@ -607,26 +621,9 @@
         this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       }
 
-      drawScientificGrid(step = 32) {
-        const ctx = this.ctx;
-        ctx.save();
-        ctx.strokeStyle = "rgba(148, 163, 184, 0.07)";
-        ctx.lineWidth = 1;
-        for (let x = step; x < this.width; x += step) {
-          ctx.beginPath();
-          ctx.moveTo(x, 0);
-          ctx.lineTo(x, this.height);
-          ctx.stroke();
-        }
-        for (let y = step; y < this.height; y += step) {
-          ctx.beginPath();
-          ctx.moveTo(0, y);
-          ctx.lineTo(this.width, y);
-          ctx.stroke();
-        }
-        ctx.restore();
-      }
-
+      /**
+       * Draws a sharp, narrow 1950s monograph technical vector arrow
+       */
       drawVectorArrow(x0, y0, x1, y1, color, label = "") {
         const dx = x1 - x0;
         const dy = y1 - y0;
@@ -635,35 +632,42 @@
 
         const ctx = this.ctx;
         const angle = Math.atan2(dy, dx);
-        const headLen = Math.min(10, Math.max(6, len * 0.25));
+        const headLen = Math.min(9.5, Math.max(5.5, len * 0.24));
 
         ctx.save();
         ctx.strokeStyle = color;
         ctx.fillStyle = color;
-        ctx.lineWidth = 2.2;
+        ctx.lineWidth = 1.65;
 
         ctx.beginPath();
         ctx.moveTo(x0, y0);
         ctx.lineTo(x1, y1);
         ctx.stroke();
 
+        // Fine drafting arrowhead
         ctx.beginPath();
         ctx.moveTo(x1, y1);
-        ctx.lineTo(x1 - headLen * Math.cos(angle - Math.PI / 6), y1 - headLen * Math.sin(angle - Math.PI / 6));
-        ctx.lineTo(x1 - headLen * Math.cos(angle + Math.PI / 6), y1 - headLen * Math.sin(angle + Math.PI / 6));
+        ctx.lineTo(
+          x1 - headLen * Math.cos(angle - Math.PI / 7.5),
+          y1 - headLen * Math.sin(angle - Math.PI / 7.5)
+        );
+        ctx.lineTo(
+          x1 - headLen * Math.cos(angle + Math.PI / 7.5),
+          y1 - headLen * Math.sin(angle + Math.PI / 7.5)
+        );
         ctx.closePath();
         ctx.fill();
 
         if (label) {
-          ctx.font = "600 11px 'JetBrains Mono', monospace";
-          ctx.fillText(label, x1 + (dx >= 0 ? 6 : -28), y1 - 6);
+          ctx.font = "italic 13px 'EB Garamond', Georgia, serif";
+          ctx.fillText(label, x1 + (dx >= 0 ? 6 : -30), y1 - 5);
         }
         ctx.restore();
       }
     }
 
     /**
-     * Renders a horizontal Mass-Spring Oscillator moving along x1 in [-3.5, 3.5].
+     * Plate 1a: Horizontal Mass-Spring Oscillator in 1950s Technical Engraving Style
      */
     class SpringMassCanvasRenderer extends BaseCanvasRenderer {
       render(snapshot) {
@@ -671,98 +675,102 @@
         const w = this.width;
         const h = this.height;
         ctx.clearRect(0, 0, w, h);
-        this.drawScientificGrid(30);
 
-        const wallX = 48;
+        const wallX = 52;
         const centerY = h * 0.50;
         const eqX = w * 0.54;
         const scaleX = Math.min((w - wallX - 90) / 7.2, 68);
         const massX = eqX + snapshot.x1 * scaleX;
-        const massWidth = 56;
-        const massHeight = 46;
+        const massWidth = 54;
+        const massHeight = 42;
+        const trackY = centerY + massHeight / 2;
 
-        // 1. Equilibrium vertical reference line x1 = 0
+        // 1. Equilibrium vertical hairline x1 = 0
         ctx.save();
-        ctx.strokeStyle = "rgba(56, 189, 248, 0.35)";
-        ctx.setLineDash([5, 5]);
-        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = "rgba(27, 73, 101, 0.45)";
+        ctx.setLineDash([4, 4]);
+        ctx.lineWidth = 1.0;
         ctx.beginPath();
-        ctx.moveTo(eqX, 28);
-        ctx.lineTo(eqX, h - 38);
+        ctx.moveTo(eqX, 26);
+        ctx.lineTo(eqX, trackY + 26);
         ctx.stroke();
         ctx.setLineDash([]);
-        ctx.fillStyle = "#38bdf8";
-        ctx.font = "600 11px 'JetBrains Mono', monospace";
+        ctx.fillStyle = ARCHIVAL_PALETTE.cobalt;
+        ctx.font = "italic 13px 'EB Garamond', Georgia, serif";
         ctx.textAlign = "center";
-        ctx.fillText("Equilibrium (x₁ = 0)", eqX, 20);
+        ctx.fillText("Equilibrium x₁ = 0", eqX, 18);
         ctx.restore();
 
-        // 2. Amplitude turning point markers (-R0 and +R0)
-        for (const sign of [-1, 1]) {
-          const boundX = eqX + sign * snapshot.radius * scaleX;
-          ctx.save();
-          ctx.strokeStyle = "rgba(168, 85, 247, 0.32)";
-          ctx.setLineDash([3, 4]);
-          ctx.beginPath();
-          ctx.moveTo(boundX, centerY - 50);
-          ctx.lineTo(boundX, centerY + 45);
-          ctx.stroke();
-          ctx.fillStyle = "#a855f7";
-          ctx.font = "500 10px 'JetBrains Mono', monospace";
-          ctx.textAlign = "center";
-          ctx.fillText(sign < 0 ? `-R₀` : `+R₀`, boundX, centerY - 56);
-          ctx.restore();
-        }
+        // 2. Amplitude turning-point range markers (-R0 and +R0) — Tufte Range Frame
+        const leftBoundX = eqX - snapshot.radius * scaleX;
+        const rightBoundX = eqX + snapshot.radius * scaleX;
 
-        // 3. Rigid Wall & Frictionless Horizontal Track
-        const trackY = centerY + massHeight / 2;
         ctx.save();
-        ctx.strokeStyle = "#475569";
-        ctx.lineWidth = 2.5;
+        ctx.strokeStyle = "rgba(140, 90, 22, 0.45)";
+        ctx.lineWidth = 1.0;
+        ctx.setLineDash([2, 3]);
+        for (const [bx, label] of [[leftBoundX, "−R₀"], [rightBoundX, "+R₀"]]) {
+          ctx.beginPath();
+          ctx.moveTo(bx, centerY - 46);
+          ctx.lineTo(bx, trackY);
+          ctx.stroke();
+
+          ctx.fillStyle = ARCHIVAL_PALETTE.ochre;
+          ctx.font = "italic 12.5px 'EB Garamond', Georgia, serif";
+          ctx.textAlign = "center";
+          ctx.fillText(label, bx, centerY - 52);
+        }
+        ctx.restore();
+
+        // 3. Drafted Rigid Support Wall & Horizontal Datum Plane
+        ctx.save();
+        ctx.strokeStyle = ARCHIVAL_PALETTE.inkPrimary;
+        ctx.lineWidth = 1.5;
         ctx.beginPath();
-        ctx.moveTo(wallX, centerY - 62);
+        ctx.moveTo(wallX, centerY - 56);
         ctx.lineTo(wallX, trackY);
         ctx.lineTo(w - 28, trackY);
         ctx.stroke();
 
-        // Wall hatching
-        ctx.strokeStyle = "#334155";
-        ctx.lineWidth = 1.3;
-        for (let y = centerY - 56; y <= trackY; y += 10) {
+        // Fine 45-degree technical cross-hatching on rigid wall & datum ground
+        ctx.strokeStyle = ARCHIVAL_PALETTE.inkSecondary;
+        ctx.lineWidth = 0.85;
+        for (let y = centerY - 52; y <= trackY; y += 8) {
           ctx.beginPath();
-          ctx.moveTo(wallX - 12, y + 8);
+          ctx.moveTo(wallX - 10, y + 7);
           ctx.lineTo(wallX, y);
           ctx.stroke();
         }
         ctx.restore();
 
-        // 4. Coordinate Ruler along the track (-3 to +3)
+        // 4. Tufte Minimalist Coordinate Scale (-3 to +3)
         ctx.save();
-        ctx.fillStyle = "#94a3b8";
-        ctx.strokeStyle = "#475569";
-        ctx.font = "500 11px 'JetBrains Mono', monospace";
+        ctx.fillStyle = ARCHIVAL_PALETTE.inkSecondary;
+        ctx.strokeStyle = ARCHIVAL_PALETTE.inkPrimary;
+        ctx.lineWidth = 1.0;
+        ctx.font = "400 11px 'IBM Plex Mono', monospace";
         ctx.textAlign = "center";
         for (let tick = -3; tick <= 3; tick++) {
           const tx = eqX + tick * scaleX;
           ctx.beginPath();
           ctx.moveTo(tx, trackY);
-          ctx.lineTo(tx, trackY + 7);
+          ctx.lineTo(tx, trackY + 6);
           ctx.stroke();
-          ctx.fillText(tick.toString(), tx, trackY + 21);
+          ctx.fillText(tick === 0 ? "0" : (tick > 0 ? `+${tick}` : `${tick}`), tx, trackY + 19);
         }
         ctx.restore();
 
-        // 5. Dynamic Helical Spring Coil from wallX to mass left edge
+        // 5. Drafted Helical Spring Coil in India Ink
         const springStartX = wallX;
         const springEndX = massX - massWidth / 2;
         const numCoils = 14;
-        const coilAmplitude = 14;
+        const coilAmplitude = 12;
         const pad = 12;
-        const activeLen = Math.max(20, (springEndX - springStartX) - 2 * pad);
+        const activeLen = Math.max(18, (springEndX - springStartX) - 2 * pad);
 
         ctx.save();
-        ctx.strokeStyle = "#cbd5e1";
-        ctx.lineWidth = 2.2;
+        ctx.strokeStyle = ARCHIVAL_PALETTE.inkPrimary;
+        ctx.lineWidth = 1.5;
         ctx.lineJoin = "round";
         ctx.beginPath();
         ctx.moveTo(springStartX, centerY);
@@ -780,54 +788,65 @@
         ctx.stroke();
         ctx.restore();
 
-        // 6. Mass Block m
+        // 6. Mass Block m (Warm Ivory Fill + Sharp Ink Border + Subtle Diagonal Engraving)
+        const boxLeft = massX - massWidth / 2;
+        const boxTop = centerY - massHeight / 2;
+
         ctx.save();
-        const grad = ctx.createLinearGradient(
-          massX - massWidth / 2,
-          centerY - massHeight / 2,
-          massX + massWidth / 2,
-          centerY + massHeight / 2
-        );
-        grad.addColorStop(0, "#0284c7");
-        grad.addColorStop(1, "#0369a1");
-        ctx.fillStyle = grad;
-        ctx.strokeStyle = "#38bdf8";
-        ctx.lineWidth = 2;
+        ctx.fillStyle = "#faf6eb";
+        ctx.strokeStyle = ARCHIVAL_PALETTE.inkPrimary;
+        ctx.lineWidth = 1.8;
         ctx.beginPath();
-        ctx.roundRect(massX - massWidth / 2, centerY - massHeight / 2, massWidth, massHeight, 6);
+        ctx.rect(boxLeft, boxTop, massWidth, massHeight);
         ctx.fill();
         ctx.stroke();
 
-        ctx.fillStyle = "#f8fafc";
-        ctx.font = "700 13px 'JetBrains Mono', monospace";
+        // Inner fine framing line
+        ctx.strokeStyle = "rgba(25, 23, 21, 0.25)";
+        ctx.lineWidth = 0.8;
+        ctx.strokeRect(boxLeft + 3, boxTop + 3, massWidth - 6, massHeight - 6);
+
+        ctx.fillStyle = ARCHIVAL_PALETTE.inkPrimary;
+        ctx.font = "italic 600 16px 'EB Garamond', Georgia, serif";
         ctx.textAlign = "center";
         ctx.fillText("m", massX, centerY + 5);
         ctx.restore();
 
-        // 7. Synchronized Velocity Vector (x2) & Restoring Force Vector (dx2 = -omega^2 * x1)
+        // 7. Direct Displacement Dimension Line from Equilibrium to Mass Center
+        if (Math.abs(snapshot.x1) > 0.08) {
+          this.drawVectorArrow(
+            eqX,
+            trackY + 34,
+            massX,
+            trackY + 34,
+            ARCHIVAL_PALETTE.cobalt,
+            "x₁"
+          );
+        }
+
+        // 8. Synchronized Velocity Vector (x2) & Restoring Force Vector (F = -omega^2 * x1)
         const vecScale = 22;
         this.drawVectorArrow(
           massX,
-          centerY - massHeight / 2 - 14,
+          boxTop - 12,
           massX + snapshot.x2 * vecScale,
-          centerY - massHeight / 2 - 14,
-          "#f97316",
+          boxTop - 12,
+          ARCHIVAL_PALETTE.vermilion,
           "v = x₂"
         );
         this.drawVectorArrow(
           massX,
-          centerY - massHeight / 2 - 32,
+          boxTop - 28,
           massX + snapshot.dx2 * vecScale,
-          centerY - massHeight / 2 - 32,
-          "#10b981",
-          "F"
+          boxTop - 28,
+          ARCHIVAL_PALETTE.forest,
+          "F = −ω₀²x₁"
         );
       }
     }
 
     /**
-     * Renders a Simple Pendulum in exact small-oscillation synchrony with x1(t).
-     * Maps normalized displacement x1 in [-3, 3] to angular displacement theta(t).
+     * Plate 1b: Simple Pendulum in 1950s Technical Engraving Style + Tufte Borderless Energy Micro-Bar
      */
     class PendulumCanvasRenderer extends BaseCanvasRenderer {
       render(snapshot) {
@@ -835,50 +854,57 @@
         const w = this.width;
         const h = this.height;
         ctx.clearRect(0, 0, w, h);
-        this.drawScientificGrid(30);
 
-        const pivotX = w * 0.50;
-        const pivotY = 38;
-        const rodLength = Math.min(w * 0.42, h - 98);
+        const pivotX = w * 0.52;
+        const pivotY = 34;
+        const rodLength = Math.min(w * 0.40, h - 92);
 
-        // Visual angular mapping: 1 unit of x1 corresponds to 0.135 rad (~7.7 deg)
         const angleScale = 0.135;
         const theta = snapshot.x1 * angleScale;
         const maxTheta = snapshot.radius * angleScale;
 
         const bobX = pivotX + rodLength * Math.sin(theta);
         const bobY = pivotY + rodLength * Math.cos(theta);
-        const bobRadius = 18;
+        const bobRadius = 15;
 
-        // 1. Ceiling Support Mount
+        // 1. Drafted Ceiling Datum & Cross-Hatching
         ctx.save();
-        ctx.strokeStyle = "#475569";
-        ctx.lineWidth = 3;
+        ctx.strokeStyle = ARCHIVAL_PALETTE.inkPrimary;
+        ctx.lineWidth = 1.6;
         ctx.beginPath();
-        ctx.moveTo(pivotX - 70, pivotY);
-        ctx.lineTo(pivotX + 70, pivotY);
+        ctx.moveTo(pivotX - 64, pivotY);
+        ctx.lineTo(pivotX + 64, pivotY);
         ctx.stroke();
 
-        // Equilibrium Vertical Reference Line (theta = 0)
-        ctx.strokeStyle = "rgba(56, 189, 248, 0.32)";
-        ctx.setLineDash([5, 5]);
-        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = ARCHIVAL_PALETTE.inkSecondary;
+        ctx.lineWidth = 0.85;
+        for (let x = pivotX - 58; x <= pivotX + 58; x += 9) {
+          ctx.beginPath();
+          ctx.moveTo(x, pivotY);
+          ctx.lineTo(x + 6, pivotY - 8);
+          ctx.stroke();
+        }
+
+        // Equilibrium Vertical Plumb Line (theta = 0)
+        ctx.strokeStyle = "rgba(27, 73, 101, 0.42)";
+        ctx.setLineDash([4, 4]);
+        ctx.lineWidth = 1.0;
         ctx.beginPath();
         ctx.moveTo(pivotX, pivotY);
-        ctx.lineTo(pivotX, pivotY + rodLength + 34);
+        ctx.lineTo(pivotX, pivotY + rodLength + 30);
         ctx.stroke();
         ctx.setLineDash([]);
-        ctx.fillStyle = "#38bdf8";
-        ctx.font = "600 11px 'JetBrains Mono', monospace";
+        ctx.fillStyle = ARCHIVAL_PALETTE.cobalt;
+        ctx.font = "italic 13px 'EB Garamond', Georgia, serif";
         ctx.textAlign = "center";
-        ctx.fillText("θ = 0 (x₁ = 0)", pivotX, pivotY + rodLength + 48);
+        ctx.fillText("Plumb Line θ = 0 (x₁ = 0)", pivotX, pivotY + rodLength + 46);
         ctx.restore();
 
-        // 2. Circular Swing Arc Path [-maxTheta, +maxTheta]
+        // 2. Circular Swing Locus Arc [-maxTheta, +maxTheta]
         ctx.save();
-        ctx.strokeStyle = "rgba(168, 85, 247, 0.45)";
-        ctx.lineWidth = 2;
-        ctx.setLineDash([4, 4]);
+        ctx.strokeStyle = "rgba(120, 112, 100, 0.55)";
+        ctx.lineWidth = 1.1;
+        ctx.setLineDash([3, 3]);
         ctx.beginPath();
         ctx.arc(
           pivotX,
@@ -890,18 +916,18 @@
         ctx.stroke();
         ctx.restore();
 
-        // 3. Angular Sector Wedge near pivot
+        // 3. Angular Measure Arc near Pivot
         if (Math.abs(theta) > 0.01) {
           ctx.save();
-          ctx.fillStyle = "rgba(56, 189, 248, 0.14)";
-          ctx.strokeStyle = "#38bdf8";
-          ctx.lineWidth = 1.4;
+          ctx.fillStyle = "rgba(27, 73, 101, 0.08)";
+          ctx.strokeStyle = ARCHIVAL_PALETTE.cobalt;
+          ctx.lineWidth = 1.1;
           ctx.beginPath();
           ctx.moveTo(pivotX, pivotY);
           ctx.arc(
             pivotX,
             pivotY,
-            56,
+            52,
             Math.PI / 2,
             Math.PI / 2 - theta,
             theta > 0
@@ -909,63 +935,76 @@
           ctx.closePath();
           ctx.fill();
           ctx.stroke();
+
+          ctx.fillStyle = ARCHIVAL_PALETTE.cobalt;
+          ctx.font = "italic 13px 'EB Garamond', Georgia, serif";
+          ctx.textAlign = "center";
+          ctx.fillText("θ", pivotX + Math.sin(theta * 0.5) * 66, pivotY + 66);
           ctx.restore();
         }
 
-        // 4. Massless Rigid Rod
+        // 4. Rigid Suspension Rod & Pivot Pin
         ctx.save();
-        ctx.strokeStyle = "#e2e8f0";
-        ctx.lineWidth = 2.6;
+        ctx.strokeStyle = ARCHIVAL_PALETTE.inkPrimary;
+        ctx.lineWidth = 1.7;
         ctx.beginPath();
         ctx.moveTo(pivotX, pivotY);
         ctx.lineTo(bobX, bobY);
         ctx.stroke();
 
-        // Pivot Hinge
-        ctx.fillStyle = "#38bdf8";
+        ctx.fillStyle = ARCHIVAL_PALETTE.inkPrimary;
         ctx.beginPath();
-        ctx.arc(pivotX, pivotY, 5, 0, 2 * Math.PI);
+        ctx.arc(pivotX, pivotY, 3.5, 0, 2 * Math.PI);
         ctx.fill();
         ctx.restore();
 
-        // 5. Horizontal Shadow Projection showing exact equivalence with x1(t)
+        // 5. Orthogonal Projection Drop Line onto Horizontal Axis (Isomorphism with x1)
         const projY = pivotY + rodLength + 18;
         ctx.save();
-        ctx.strokeStyle = "rgba(56, 189, 248, 0.35)";
+        ctx.strokeStyle = "rgba(27, 73, 101, 0.40)";
+        ctx.lineWidth = 1.0;
         ctx.setLineDash([2, 3]);
         ctx.beginPath();
         ctx.moveTo(bobX, bobY);
         ctx.lineTo(bobX, projY);
         ctx.stroke();
 
-        ctx.fillStyle = "#38bdf8";
+        ctx.setLineDash([]);
+        ctx.strokeStyle = ARCHIVAL_PALETTE.ruleHairline;
         ctx.beginPath();
-        ctx.arc(bobX, projY, 4.5, 0, 2 * Math.PI);
+        ctx.moveTo(pivotX - rodLength * Math.sin(maxTheta) - 18, projY);
+        ctx.lineTo(pivotX + rodLength * Math.sin(maxTheta) + 18, projY);
+        ctx.stroke();
+
+        ctx.fillStyle = ARCHIVAL_PALETTE.cobalt;
+        ctx.beginPath();
+        ctx.arc(bobX, projY, 3.5, 0, 2 * Math.PI);
         ctx.fill();
         ctx.restore();
 
-        // 6. Pendulum Bob
+        // 6. Drafted Pendulum Bob (Ivory Core + Double Ink Ring)
         ctx.save();
-        const bobGrad = ctx.createRadialGradient(
-          bobX - 5,
-          bobY - 5,
-          3,
-          bobX,
-          bobY,
-          bobRadius
-        );
-        bobGrad.addColorStop(0, "#38bdf8");
-        bobGrad.addColorStop(1, "#0369a1");
-        ctx.fillStyle = bobGrad;
-        ctx.strokeStyle = "#e0f2fe";
+        ctx.fillStyle = "#faf6eb";
+        ctx.strokeStyle = ARCHIVAL_PALETTE.inkPrimary;
         ctx.lineWidth = 1.8;
         ctx.beginPath();
         ctx.arc(bobX, bobY, bobRadius, 0, 2 * Math.PI);
         ctx.fill();
         ctx.stroke();
+
+        ctx.strokeStyle = "rgba(25, 23, 21, 0.3)";
+        ctx.lineWidth = 0.8;
+        ctx.beginPath();
+        ctx.arc(bobX, bobY, bobRadius - 3.5, 0, 2 * Math.PI);
+        ctx.stroke();
+
+        ctx.fillStyle = ARCHIVAL_PALETTE.inkPrimary;
+        ctx.font = "italic 600 13px 'EB Garamond', Georgia, serif";
+        ctx.textAlign = "center";
+        ctx.fillText("m", bobX, bobY + 4);
         ctx.restore();
 
-        // 7. Tangential Velocity Vector v_theta
+        // 7. Tangential Velocity Vector
         const tangentX = Math.cos(theta);
         const tangentY = -Math.sin(theta);
         const vScale = 20;
@@ -974,11 +1013,11 @@
           bobY,
           bobX + snapshot.x2 * vScale * tangentX,
           bobY + snapshot.x2 * vScale * tangentY,
-          "#f97316",
+          ARCHIVAL_PALETTE.vermilion,
           "v_θ"
         );
 
-        // 8. Live Kinetic vs Potential Energy Partition Mini-Bar (Top Left of Canvas)
+        // 8. Tufte Borderless Energy Partition Micro-Graphic (Zero Box Chartjunk)
         const totalE = Math.max(1e-6, snapshot.energy);
         const potentialE = 0.5 * snapshot.omega * snapshot.omega * snapshot.x1 * snapshot.x1;
         const kineticE = 0.5 * snapshot.x2 * snapshot.x2;
@@ -986,36 +1025,37 @@
         const kFrac = Math.min(1, kineticE / totalE);
 
         ctx.save();
-        const boxX = 18;
-        const boxY = 18;
-        ctx.fillStyle = "rgba(15, 23, 42, 0.85)";
-        ctx.strokeStyle = "#1e293b";
-        ctx.beginPath();
-        ctx.roundRect(boxX, boxY, 152, 58, 6);
-        ctx.fill();
-        ctx.stroke();
+        const barX = 16;
+        const barY = 24;
+        const barWidth = 118;
 
-        ctx.font = "600 10px 'JetBrains Mono', monospace";
-        ctx.fillStyle = "#38bdf8";
-        ctx.fillText(`U (Potential): ${(uFrac * 100).toFixed(0)}%`, boxX + 10, boxY + 18);
-        ctx.fillStyle = "#1e293b";
-        ctx.fillRect(boxX + 10, boxY + 23, 130, 6);
-        ctx.fillStyle = "#38bdf8";
-        ctx.fillRect(boxX + 10, boxY + 23, 130 * uFrac, 6);
+        ctx.fillStyle = ARCHIVAL_PALETTE.inkSecondary;
+        ctx.font = "italic 12px 'EB Garamond', Georgia, serif";
+        ctx.fillText("Energy Partition E = U + T", barX, barY);
 
-        ctx.fillStyle = "#f97316";
-        ctx.fillText(`T (Kinetic):   ${(kFrac * 100).toFixed(0)}%`, boxX + 10, boxY + 42);
-        ctx.fillStyle = "#1e293b";
-        ctx.fillRect(boxX + 10, boxY + 47, 130, 6);
-        ctx.fillStyle = "#f97316";
-        ctx.fillRect(boxX + 10, boxY + 47, 130 * kFrac, 6);
+        // Potential Energy U Hairline Bar
+        ctx.font = "400 10.5px 'IBM Plex Mono', monospace";
+        ctx.fillStyle = ARCHIVAL_PALETTE.cobalt;
+        ctx.fillText(`U ${(uFrac * 100).toFixed(0).padStart(3, " ")}%`, barX, barY + 17);
+        ctx.fillStyle = "rgba(120, 112, 100, 0.20)";
+        ctx.fillRect(barX + 46, barY + 11, barWidth, 3.5);
+        ctx.fillStyle = ARCHIVAL_PALETTE.cobalt;
+        ctx.fillRect(barX + 46, barY + 11, barWidth * uFrac, 3.5);
+
+        // Kinetic Energy T Hairline Bar
+        ctx.fillStyle = ARCHIVAL_PALETTE.vermilion;
+        ctx.fillText(`T ${(kFrac * 100).toFixed(0).padStart(3, " ")}%`, barX, barY + 33);
+        ctx.fillStyle = "rgba(120, 112, 100, 0.20)";
+        ctx.fillRect(barX + 46, barY + 27, barWidth, 3.5);
+        ctx.fillStyle = ARCHIVAL_PALETTE.vermilion;
+        ctx.fillRect(barX + 46, barY + 27, barWidth * kFrac, 3.5);
         ctx.restore();
       }
     }
 
     /**
      * =========================================================================
-     * LAYER 3: PLOTLY.JS PHASE SPACE & EXTENDED PHASE SPACE RENDERERS
+     * LAYER 3: TUFTE MINIMALIST PLOTLY.JS RENDERERS (TRANSPARENT PAPER, FINE INK)
      * =========================================================================
      */
     class PhaseSpace2DPlotlyRenderer {
@@ -1024,10 +1064,6 @@
         this.initialized = false;
       }
 
-      /**
-       * Builds static vector field arrows V(x1, x2) = (x2, -omega^2 * x1)
-       * and reference level curves for R = 1, 2, 3.
-       */
       buildStaticVectorField(omega) {
         const x1Grid = [];
         const x2Grid = [];
@@ -1043,22 +1079,20 @@
             const u = x2;
             const v = -(omega * omega) * x1;
             const mag = Math.hypot(u, v) || 1.0;
-            const arrowLen = 0.24;
+            const arrowLen = 0.23;
 
             const xEnd = x1 + (u / mag) * arrowLen;
             const yEnd = x2 + (v / mag) * arrowLen;
 
-            // Arrow shaft
             x1Grid.push(x1, xEnd, null);
             x2Grid.push(x2, yEnd, null);
 
-            // Arrowhead wings
             const angle = Math.atan2(v, u);
-            const headLen = 0.085;
-            const wing1X = xEnd - headLen * Math.cos(angle - Math.PI / 6);
-            const wing1Y = yEnd - headLen * Math.sin(angle - Math.PI / 6);
-            const wing2X = xEnd - headLen * Math.cos(angle + Math.PI / 6);
-            const wing2Y = yEnd - headLen * Math.sin(angle + Math.PI / 6);
+            const headLen = 0.08;
+            const wing1X = xEnd - headLen * Math.cos(angle - Math.PI / 7);
+            const wing1Y = yEnd - headLen * Math.sin(angle - Math.PI / 7);
+            const wing2X = xEnd - headLen * Math.cos(angle + Math.PI / 7);
+            const wing2Y = yEnd - headLen * Math.sin(angle + Math.PI / 7);
 
             x1Grid.push(wing1X, xEnd, wing2X, null);
             x2Grid.push(wing1Y, yEnd, wing2Y, null);
@@ -1084,13 +1118,13 @@
         const refRadii = [1.0, 2.0, 3.0];
 
         const traces = [
-          // Trace 0: Static Phase Velocity Vector Field V(x1, x2)
+          // Trace 0: Static Phase Velocity Vector Field V(x1, x2) in Diluted Sepia Ink
           {
             x: x1Grid,
             y: x2Grid,
             mode: "lines",
-            line: { color: "rgba(148, 163, 184, 0.28)", width: 1.2 },
-            name: "Vector Field V(x₁,x₂)",
+            line: { color: "rgba(92, 85, 73, 0.34)", width: 1.0 },
+            name: "Field V(x₁, x₂)",
             hoverinfo: "skip"
           }
         ];
@@ -1102,7 +1136,7 @@
             x: xs,
             y: ys,
             mode: "lines",
-            line: { color: "rgba(100, 116, 139, 0.35)", width: 1.2, dash: "dot" },
+            line: { color: "rgba(120, 112, 100, 0.38)", width: 1.0, dash: "dot" },
             name: `Level Curve R=${r}`,
             showlegend: false,
             hoverinfo: "skip"
@@ -1115,74 +1149,91 @@
           x: activeOrbit.xs,
           y: activeOrbit.ys,
           mode: "lines",
-          line: { color: "rgba(56, 189, 248, 0.45)", width: 2.2 },
-          name: "Active Phase Orbit",
+          line: { color: "rgba(27, 73, 101, 0.45)", width: 1.5 },
+          name: "Invariant Orbit",
           hoverinfo: "skip"
         });
 
-        // Trace 5: Recent Trajectory Comet Trail
+        // Trace 5: Recent Trajectory Flow Arc in Prussian Cobalt Ink
         traces.push({
           x: [snapshot.x1],
           y: [snapshot.x2],
           mode: "lines",
-          line: { color: "#38bdf8", width: 3.5 },
-          name: "Phase Flow Trail",
+          line: { color: ARCHIVAL_PALETTE.cobalt, width: 2.8 },
+          name: "Phase Trajectory",
           hoverinfo: "skip"
         });
 
-        // Trace 6: Equilibrium Point (0, 0)
+        // Trace 6: Equilibrium Point (0, 0) — Classic Hollow Technical Fixed-Point Ring
         traces.push({
           x: [0],
           y: [0],
           mode: "markers",
           marker: {
-            color: "#ef4444",
-            size: 10,
-            line: { color: "#090d16", width: 2 }
+            color: ARCHIVAL_PALETTE.paperBg,
+            size: 8,
+            line: { color: ARCHIVAL_PALETTE.inkPrimary, width: 1.8 }
           },
           name: "Equilibrium (0, 0)"
         });
 
-        // Trace 7: Real-Time Active Phase State Marker (x1(t), x2(t))
+        // Trace 7: Real-Time Active Phase State Marker (x1(t), x2(t)) in Vermilion Ink
         traces.push({
           x: [snapshot.x1],
           y: [snapshot.x2],
           mode: "markers",
           marker: {
-            color: "#f97316",
-            size: 13,
-            line: { color: "#ffffff", width: 2.2 }
+            color: ARCHIVAL_PALETTE.vermilion,
+            size: 10,
+            line: { color: ARCHIVAL_PALETTE.paperBg, width: 1.8 }
           },
           name: "State (x₁(t), x₂(t))"
         });
 
         const layout = {
           paper_bgcolor: "rgba(0,0,0,0)",
-          plot_bgcolor: "rgba(17, 24, 39, 0.6)",
-          margin: { l: 52, r: 24, t: 18, b: 46 },
+          plot_bgcolor: "rgba(0,0,0,0)",
+          margin: { l: 50, r: 20, t: 12, b: 44 },
           xaxis: {
-            title: { text: "Position Coordinate x₁", font: { color: "#cbd5e1", size: 12 } },
+            title: {
+              text: "Position Coordinate x₁",
+              font: { color: ARCHIVAL_PALETTE.inkPrimary, size: 13, family: "EB Garamond, Georgia, serif" }
+            },
             range: [-3.6, 3.6],
-            gridcolor: "rgba(148, 163, 184, 0.12)",
-            zerolinecolor: "rgba(148, 163, 184, 0.4)",
-            tickfont: { color: "#94a3b8", family: "JetBrains Mono" },
+            showgrid: true,
+            gridcolor: "rgba(120, 112, 100, 0.13)",
+            zeroline: true,
+            zerolinecolor: "rgba(25, 23, 21, 0.35)",
+            zerolinewidth: 1,
+            ticks: "outside",
+            ticklen: 4,
+            tickcolor: ARCHIVAL_PALETTE.inkSecondary,
+            tickfont: { color: ARCHIVAL_PALETTE.inkSecondary, size: 11, family: "IBM Plex Mono, monospace" },
             scaleanchor: "y",
             scaleratio: 1
           },
           yaxis: {
-            title: { text: "Velocity Coordinate x₂ = dx₁/dt", font: { color: "#cbd5e1", size: 12 } },
+            title: {
+              text: "Velocity Coordinate x₂ = dx₁/dt",
+              font: { color: ARCHIVAL_PALETTE.inkPrimary, size: 13, family: "EB Garamond, Georgia, serif" }
+            },
             range: [-3.6, 3.6],
-            gridcolor: "rgba(148, 163, 184, 0.12)",
-            zerolinecolor: "rgba(148, 163, 184, 0.4)",
-            tickfont: { color: "#94a3b8", family: "JetBrains Mono" }
+            showgrid: true,
+            gridcolor: "rgba(120, 112, 100, 0.13)",
+            zeroline: true,
+            zerolinecolor: "rgba(25, 23, 21, 0.35)",
+            zerolinewidth: 1,
+            ticks: "outside",
+            ticklen: 4,
+            tickcolor: ARCHIVAL_PALETTE.inkSecondary,
+            tickfont: { color: ARCHIVAL_PALETTE.inkSecondary, size: 11, family: "IBM Plex Mono, monospace" }
           },
           legend: {
-            x: 0.02,
-            y: 0.98,
-            bgcolor: "rgba(15, 23, 42, 0.82)",
-            bordercolor: "#334155",
-            borderwidth: 1,
-            font: { color: "#e2e8f0", size: 10, family: "Inter" }
+            x: 0.01,
+            y: 0.99,
+            bgcolor: "rgba(245, 239, 224, 0.82)",
+            borderwidth: 0,
+            font: { color: ARCHIVAL_PALETTE.inkPrimary, size: 11.5, family: "EB Garamond, Georgia, serif" }
           }
         };
 
@@ -1222,14 +1273,12 @@
     }
 
     /**
-     * Renders Panel 4 in either:
-     * - "2d": Real-time scrolling Time-Series Waveforms x1(t) and x2(t)
-     * - "3d": Real-time 3D Extended Phase Space Cylindrical Helix (t, x1(t), x2(t))
+     * Plate 2b: Real-Time Time-Series Waveforms or 3D Extended Phase Space Cylindrical Helix
      */
     class ExtendedSpacePlotlyRenderer {
       constructor(containerId) {
         this.containerId = containerId;
-        this.mode = "2d"; // "2d" or "3d"
+        this.mode = "2d";
         this.initializedMode = null;
       }
 
@@ -1250,57 +1299,80 @@
               x: snapshot.historyT,
               y: snapshot.historyX1,
               mode: "lines",
-              line: { color: "#38bdf8", width: 2.8 },
+              line: { color: ARCHIVAL_PALETTE.cobalt, width: 2.2 },
               name: "Position x₁(t)"
             },
             {
               x: snapshot.historyT,
               y: snapshot.historyX2,
               mode: "lines",
-              line: { color: "#f97316", width: 2.4, dash: "solid" },
+              line: { color: ARCHIVAL_PALETTE.vermilion, width: 1.8, dash: "dash" },
               name: "Velocity x₂(t)"
             },
             {
               x: [snapshot.t],
               y: [snapshot.x1],
               mode: "markers",
-              marker: { color: "#38bdf8", size: 10, line: { color: "#ffffff", width: 2 } },
+              marker: {
+                color: ARCHIVAL_PALETTE.cobalt,
+                size: 8.5,
+                line: { color: ARCHIVAL_PALETTE.paperBg, width: 1.5 }
+              },
               showlegend: false
             },
             {
               x: [snapshot.t],
               y: [snapshot.x2],
               mode: "markers",
-              marker: { color: "#f97316", size: 10, line: { color: "#ffffff", width: 2 } },
+              marker: {
+                color: ARCHIVAL_PALETTE.vermilion,
+                size: 8.5,
+                line: { color: ARCHIVAL_PALETTE.paperBg, width: 1.5 }
+              },
               showlegend: false
             }
           ];
 
           const layout = {
             paper_bgcolor: "rgba(0,0,0,0)",
-            plot_bgcolor: "rgba(17, 24, 39, 0.6)",
-            margin: { l: 52, r: 24, t: 18, b: 46 },
+            plot_bgcolor: "rgba(0,0,0,0)",
+            margin: { l: 50, r: 20, t: 12, b: 44 },
             xaxis: {
-              title: { text: "Time t (s)", font: { color: "#cbd5e1", size: 12 } },
+              title: {
+                text: "Time Coordinate t (s)",
+                font: { color: ARCHIVAL_PALETTE.inkPrimary, size: 13, family: "EB Garamond, Georgia, serif" }
+              },
               range: [tMin, tMax],
-              gridcolor: "rgba(148, 163, 184, 0.12)",
-              zerolinecolor: "rgba(148, 163, 184, 0.35)",
-              tickfont: { color: "#94a3b8", family: "JetBrains Mono" }
+              showgrid: true,
+              gridcolor: "rgba(120, 112, 100, 0.13)",
+              zeroline: true,
+              zerolinecolor: "rgba(25, 23, 21, 0.35)",
+              ticks: "outside",
+              ticklen: 4,
+              tickcolor: ARCHIVAL_PALETTE.inkSecondary,
+              tickfont: { color: ARCHIVAL_PALETTE.inkSecondary, size: 11, family: "IBM Plex Mono, monospace" }
             },
             yaxis: {
-              title: { text: "State Amplitude x₁(t), x₂(t)", font: { color: "#cbd5e1", size: 12 } },
+              title: {
+                text: "Harmonic State x₁(t), x₂(t)",
+                font: { color: ARCHIVAL_PALETTE.inkPrimary, size: 13, family: "EB Garamond, Georgia, serif" }
+              },
               range: [-3.6, 3.6],
-              gridcolor: "rgba(148, 163, 184, 0.12)",
-              zerolinecolor: "rgba(148, 163, 184, 0.35)",
-              tickfont: { color: "#94a3b8", family: "JetBrains Mono" }
+              showgrid: true,
+              gridcolor: "rgba(120, 112, 100, 0.13)",
+              zeroline: true,
+              zerolinecolor: "rgba(25, 23, 21, 0.35)",
+              ticks: "outside",
+              ticklen: 4,
+              tickcolor: ARCHIVAL_PALETTE.inkSecondary,
+              tickfont: { color: ARCHIVAL_PALETTE.inkSecondary, size: 11, family: "IBM Plex Mono, monospace" }
             },
             legend: {
-              x: 0.02,
-              y: 0.98,
-              bgcolor: "rgba(15, 23, 42, 0.82)",
-              bordercolor: "#334155",
-              borderwidth: 1,
-              font: { color: "#e2e8f0", size: 10 }
+              x: 0.01,
+              y: 0.99,
+              bgcolor: "rgba(245, 239, 224, 0.82)",
+              borderwidth: 0,
+              font: { color: ARCHIVAL_PALETTE.inkPrimary, size: 11.5, family: "EB Garamond, Georgia, serif" }
             }
           };
 
@@ -1309,37 +1381,38 @@
             displayModeBar: false
           });
         } else {
-          // 3D Extended Phase Space (t, x1, x2) Cylindrical Helix
+          // 3D Extended Phase Space (t, x1, x2) Cylindrical Helix in Archival Ink
           const traces = [
-            // Equilibrium axis (t, 0, 0)
             {
               type: "scatter3d",
               mode: "lines",
               x: [tMin, tMax],
               y: [0, 0],
               z: [0, 0],
-              line: { color: "rgba(239, 68, 68, 0.65)", width: 3, dash: "dashdot" },
+              line: { color: "rgba(120, 112, 100, 0.65)", width: 2.5, dash: "dashdot" },
               name: "Equilibrium Axis (t, 0, 0)"
             },
-            // 3D Integral Curve Helix gamma(t) = (t, x1(t), x2(t))
             {
               type: "scatter3d",
               mode: "lines",
               x: snapshot.historyT,
               y: snapshot.historyX1,
               z: snapshot.historyX2,
-              line: { color: "#f97316", width: 6 },
+              line: { color: ARCHIVAL_PALETTE.vermilion, width: 5.5 },
               name: "Integral Curve γ(t)"
             },
-            // Current state head on helix
             {
               type: "scatter3d",
               mode: "markers",
               x: [snapshot.t],
               y: [snapshot.x1],
               z: [snapshot.x2],
-              marker: { color: "#38bdf8", size: 6, line: { color: "#ffffff", width: 1.5 } },
-              name: "Current State γ(t)"
+              marker: {
+                color: ARCHIVAL_PALETTE.cobalt,
+                size: 5.5,
+                line: { color: ARCHIVAL_PALETTE.paperBg, width: 1.2 }
+              },
+              name: "State γ(t)"
             }
           ];
 
@@ -1347,27 +1420,30 @@
             paper_bgcolor: "rgba(0,0,0,0)",
             margin: { l: 0, r: 0, t: 0, b: 0 },
             scene: {
-              bgcolor: "rgba(17, 24, 39, 0.55)",
+              bgcolor: "rgba(0,0,0,0)",
               xaxis: {
-                title: "t (Time)",
+                title: { text: "t (Time)", font: { family: "EB Garamond, serif", color: ARCHIVAL_PALETTE.inkPrimary } },
                 range: [tMin, tMax],
-                gridcolor: "#1e293b",
-                zerolinecolor: "#334155",
-                tickfont: { color: "#94a3b8", size: 10 }
+                gridcolor: "rgba(120, 112, 100, 0.22)",
+                zerolinecolor: "rgba(25, 23, 21, 0.4)",
+                showbackground: false,
+                tickfont: { color: ARCHIVAL_PALETTE.inkSecondary, size: 10, family: "IBM Plex Mono, monospace" }
               },
               yaxis: {
-                title: "x₁ (Position)",
+                title: { text: "x₁ (Position)", font: { family: "EB Garamond, serif", color: ARCHIVAL_PALETTE.cobalt } },
                 range: [-3.5, 3.5],
-                gridcolor: "#1e293b",
-                zerolinecolor: "#334155",
-                tickfont: { color: "#38bdf8", size: 10 }
+                gridcolor: "rgba(120, 112, 100, 0.22)",
+                zerolinecolor: "rgba(25, 23, 21, 0.4)",
+                showbackground: false,
+                tickfont: { color: ARCHIVAL_PALETTE.cobalt, size: 10, family: "IBM Plex Mono, monospace" }
               },
               zaxis: {
-                title: "x₂ (Velocity)",
+                title: { text: "x₂ (Velocity)", font: { family: "EB Garamond, serif", color: ARCHIVAL_PALETTE.vermilion } },
                 range: [-3.5, 3.5],
-                gridcolor: "#1e293b",
-                zerolinecolor: "#334155",
-                tickfont: { color: "#f97316", size: 10 }
+                gridcolor: "rgba(120, 112, 100, 0.22)",
+                zerolinecolor: "rgba(25, 23, 21, 0.4)",
+                showbackground: false,
+                tickfont: { color: ARCHIVAL_PALETTE.vermilion, size: 10, family: "IBM Plex Mono, monospace" }
               },
               aspectmode: "manual",
               aspectratio: { x: 1.45, y: 1.0, z: 1.0 },
@@ -1376,12 +1452,11 @@
               }
             },
             legend: {
-              x: 0.02,
-              y: 0.96,
-              bgcolor: "rgba(15, 23, 42, 0.82)",
-              bordercolor: "#334155",
-              borderwidth: 1,
-              font: { color: "#e2e8f0", size: 10 }
+              x: 0.01,
+              y: 0.98,
+              bgcolor: "rgba(245, 239, 224, 0.82)",
+              borderwidth: 0,
+              font: { color: ARCHIVAL_PALETTE.inkPrimary, size: 11.5, family: "EB Garamond, Georgia, serif" }
             }
           };
 
@@ -1469,7 +1544,7 @@
 
         btnPlayPause.addEventListener("click", () => {
           this.isRunning = !this.isRunning;
-          btnPlayPause.textContent = this.isRunning ? "⏸ Pause" : "▶ Resume";
+          btnPlayPause.textContent = this.isRunning ? "Pause Integration" : "Resume Integration";
           this.lastFrameTime = performance.now();
         });
 
@@ -1507,9 +1582,9 @@
           btnMode2D.classList.add("btn-active");
           btnMode3D.classList.remove("btn-active");
           document.getElementById("panel4-title").textContent =
-            "IV. Real-Time Extended State Evolution — Waveforms x₁(t) & x₂(t)";
+            "Extended State Evolution — Harmonic Quadrature x₁(t) & x₂(t)";
           document.getElementById("panel4-subtitle").textContent =
-            "Harmonic Quadrature: x₁(t) = R₀ cos(ω₀t), x₂(t) = -R₀ω₀ sin(ω₀t)";
+            "x₁(t) = R₀ cos(ω₀t),   x₂(t) = −R₀ω₀ sin(ω₀t)";
           this.extendedRenderer.setMode("2d", this.engine.getSnapshot());
         });
 
@@ -1517,9 +1592,9 @@
           btnMode3D.classList.add("btn-active");
           btnMode2D.classList.remove("btn-active");
           document.getElementById("panel4-title").textContent =
-            "IV. 3D Extended Phase Space ℝ × ℝ² — Cylindrical Helix γ(t) = (t, x₁(t), x₂(t))";
+            "Extended Phase Space ℝ × ℝ² — Cylindrical Helix γ(t) = (t, x₁(t), x₂(t))";
           document.getElementById("panel4-subtitle").textContent =
-            "Helical Trajectory Advancing Along Time Axis t";
+            "Integral Curve Winding Around Invariant Energy Cylinder";
           this.extendedRenderer.setMode("3d", this.engine.getSnapshot());
         });
       }
@@ -1561,4 +1636,3 @@
   </script>
 </body>
 </html>
-

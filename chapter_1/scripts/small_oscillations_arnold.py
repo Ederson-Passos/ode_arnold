@@ -2,26 +2,20 @@
 Scientific Visualization: Small Oscillations (Simple Harmonic Oscillator) in V. I. Arnold's Formalism
 =====================================================================================================
 Based on Vladimir I. Arnold's "Ordinary Differential Equations" (Chapter 1, Section 1.1.15).
+Styled in a 1940s–1950s archival scientific monograph palette adhering to Edward Tufte's
+principles of analytical design (high data-ink ratio, despined axes, transparent 3D panes,
+and zero chartjunk).
 
 The autonomous dynamical system for small harmonic oscillations (normalized frequency omega_0 = 1) is:
     dx_1 / dt =  x_2
     dx_2 / dt = -x_1
-
-This module implements a strictly typed, modular architecture separating:
-1. Mathematical formulation and numerical IVP integration (via scipy.integrate.solve_ivp).
-2. Publication-quality visualization (via matplotlib) featuring:
-   - Panel 1: 2D Phase Space (x_1 vs x_2) with phase velocity vector field (quiver + streamplot),
-     concentric circular phase curves for radii R in {1, 2, 3}, and the equilibrium point (0, 0).
-   - Panel 2: 3D Extended Phase Space (t, x_1, x_2) over t in [0, 4*pi] for initial state [2, 0],
-     rendering the cylindrical helix integral curve on its invariant energy cylinder alongside
-     orthogonal phase-plane projections.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Callable, Sequence, Tuple
+from typing import Sequence, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -33,6 +27,20 @@ from scipy.integrate import solve_ivp
 
 
 FloatArray = NDArray[np.float64]
+
+# =============================================================================
+# ARCHIVAL 1940s–1950s PAPER & TUFTE INK PALETTE
+# =============================================================================
+ARCHIVAL_PAPER_BG: str = "#F5EFE0"
+INK_PRIMARY: str = "#191715"
+INK_SECONDARY: str = "#47423B"
+INK_MUTED: str = "#787064"
+RULE_HAIRLINE: str = "#C8BFA8"
+
+INK_COBALT: str = "#1B4965"     # Prussian / Cobalt Blue (R = 1 & Phase Projection)
+INK_VERMILION: str = "#9E2A2B"  # Carmine / Vermilion Red (R = 2 & 3D Helix gamma(t))
+INK_FOREST: str = "#2D5A27"     # Olive / Forest Green (R = 3)
+INK_OCHRE: str = "#8C5A16"      # Warm Sepia Ochre (Invariant Cylinder Manifold)
 
 
 # =============================================================================
@@ -75,7 +83,7 @@ class OscillatorConfig:
     extended_initial_state: Tuple[float, float] = (2.0, 0.0)
     extended_t_span: Tuple[float, float] = (0.0, 4.0 * np.pi)
     grid_bounds: Tuple[float, float] = (-3.6, 3.6)
-    quiver_density: int = 19
+    quiver_density: int = 17
     stream_density: int = 120
     num_eval_points_2d: int = 500
     num_eval_points_3d: int = 800
@@ -83,7 +91,7 @@ class OscillatorConfig:
     atol: float = 1e-11
     solver_method: str = "DOP853"
     orbit_colors: Tuple[str, ...] = field(
-        default_factory=lambda: ("#0072B2", "#D55E00", "#009E73")
+        default_factory=lambda: (INK_COBALT, INK_VERMILION, INK_FOREST)
     )
 
 
@@ -104,18 +112,6 @@ class HarmonicOscillatorModel:
     def vector_field(self, t: float, state: Sequence[float] | FloatArray) -> FloatArray:
         """
         Evaluates the autonomous phase velocity vector field V(x_1, x_2) = (x_2, -omega^2 * x_1).
-
-        Parameters
-        ----------
-        t : float
-            Independent time variable (unused in autonomous rhs, required by solve_ivp signature).
-        state : Sequence[float] | FloatArray
-            State vector [x_1, x_2] in phase space R^2.
-
-        Returns
-        -------
-        FloatArray
-            Time derivatives [dx_1/dt, dx_2/dt].
         """
         x1, x2 = state[0], state[1]
         dx1_dt: float = float(x2)
@@ -212,7 +208,7 @@ class HarmonicOscillatorModel:
 
 
 # =============================================================================
-# 3. PLOTTING & VISUALIZATION LOGIC
+# 3. TUFTE MINIMALIST & 1940s–1950s ARCHIVAL PLOTTING LOGIC
 # =============================================================================
 def plot_phase_space_2d(
     ax: Axes,
@@ -223,44 +219,44 @@ def plot_phase_space_2d(
     bounds: Tuple[float, float],
 ) -> None:
     """
-    Renders Subplot 1: 2D Phase Space (x_1 vs x_2) with background streamlines,
-    quiver velocity vectors, concentric circular phase trajectories, and equilibrium marker.
+    Renders Fig. 1a: 2D Phase Space (x_1 vs x_2) adhering to Edward Tufte's high data-ink ratio.
+    Uses fine sepia streamlines, monochrome drafting-ink velocity vectors (magnitude encoded
+    directly by vector length without redundant colorbar chartjunk), concentric phase orbits
+    with direct inline labels, and despined range-frame axes.
     """
-    # 1. Background flow lines via streamplot for topological clarity
+    ax.set_facecolor(ARCHIVAL_PAPER_BG)
+
+    # 1. Ultra-fine background flow streamlines in diluted sepia ink
     ax.streamplot(
         stream_grid.X1,
         stream_grid.X2,
         stream_grid.U,
         stream_grid.V,
-        color="#CBD5E1",
-        linewidth=0.75,
-        density=1.1,
-        arrowsize=0.8,
+        color="#D7CEBC",
+        linewidth=0.6,
+        density=1.0,
+        arrowsize=0.65,
         zorder=1,
     )
 
-    # 2. Phase velocity vector field via quiver (colored by speed |V| = sqrt(x_1^2 + x_2^2))
-    quiver = ax.quiver(
+    # 2. Monochrome drafting-ink velocity vectors (length encodes ||V|| = sqrt(x_1^2 + x_2^2))
+    ax.quiver(
         quiver_grid.X1,
         quiver_grid.X2,
         quiver_grid.U,
         quiver_grid.V,
-        quiver_grid.magnitude,
-        cmap="viridis",
-        alpha=0.82,
+        color=INK_SECONDARY,
+        alpha=0.52,
         angles="xy",
         scale_units="xy",
-        scale=7.5,
-        width=0.0042,
-         headwidth=3.8,
-        headlength=4.5,
+        scale=8.2,
+        width=0.0032,
+        headwidth=3.4,
+        headlength=4.2,
         zorder=2,
     )
-    cbar = plt.colorbar(quiver, ax=ax, fraction=0.046, pad=0.04)
-    cbar.set_label(r"Phase Speed $\|V(x_1, x_2)\| = \sqrt{x_1^2 + x_2^2}$", fontsize=10)
-    cbar.ax.tick_params(labelsize=9)
 
-    # 3. Concentric circular phase curves from solve_ivp
+    # 3. Concentric circular phase curves from solve_ivp + Tufte direct labeling
     for idx, sol in enumerate(phase_curves):
         color = orbit_colors[idx % len(orbit_colors)]
         r_val = sol.radius
@@ -268,60 +264,88 @@ def plot_phase_space_2d(
             sol.x1,
             sol.x2,
             color=color,
-            linewidth=2.6,
-            label=rf"Phase Orbit $R = {r_val:.0f}$ ($E = {sol.energy:.1f}$)",
+            linewidth=2.1,
+            label=rf"Orbit $R = {r_val:.0f}$ ($E = {sol.energy:.1f}$)",
             zorder=4,
         )
-        # Initial condition marker (R, 0)
+        # Initial condition node (R, 0)
         ax.scatter(
             [sol.initial_state[0]],
             [sol.initial_state[1]],
             color=color,
-            edgecolor="white",
-            s=55,
-            linewidth=1.2,
+            edgecolor=ARCHIVAL_PAPER_BG,
+            s=46,
+            linewidth=1.1,
             zorder=5,
         )
-        # Clockwise flow direction arrow at theta = pi/4 and 5*pi/4
+        # Clockwise flow direction arrowheads at theta = pi/4 and 5*pi/4
         for angle_idx in (len(sol.t) // 8, (5 * len(sol.t)) // 8):
             ax.annotate(
                 "",
                 xy=(sol.x1[angle_idx + 3], sol.x2[angle_idx + 3]),
                 xytext=(sol.x1[angle_idx], sol.x2[angle_idx]),
-                arrowprops=dict(arrowstyle="->", color=color, lw=2.0, mutation_scale=14),
+                arrowprops=dict(arrowstyle="->", color=color, lw=1.7, mutation_scale=12),
                 zorder=5,
             )
+        # Direct Tufte label along the upper vertical axis (x_1 = 0, x_2 = +R)
+        ax.text(
+            0.08,
+            r_val + 0.11,
+            rf"$R={r_val:.0f}$",
+            color=color,
+            fontsize=9.5,
+            bbox=dict(boxstyle="square,pad=0.1", facecolor=ARCHIVAL_PAPER_BG, edgecolor="none", alpha=0.85),
+            zorder=6,
+        )
 
-    # 4. Distinct circular fixed-point marker at the Lyapunov-stable equilibrium (0, 0)
+    # 4. Lyapunov-stable center equilibrium (0, 0) as a classic hollow technical fixed-point ring
     ax.scatter(
         [0.0],
         [0.0],
-        color="#DC2626",
-        edgecolor="#0F172A",
+        facecolor=ARCHIVAL_PAPER_BG,
+        edgecolor=INK_PRIMARY,
         marker="o",
-        s=115,
+        s=90,
         linewidth=1.8,
         zorder=6,
-        label=r"Equilibrium Point $(0, 0)$",
+        label=r"Equilibrium $(0, 0)$",
     )
 
-    # 5. Coordinate axes, grid, and rigorous LaTeX typography
-    ax.axhline(0.0, color="#475569", linestyle="--", linewidth=0.9, alpha=0.6, zorder=1)
-    ax.axvline(0.0, color="#475569", linestyle="--", linewidth=0.9, alpha=0.6, zorder=1)
+    # 5. Tufte Despined Axes, Hairline Origin Crosshairs, and Minimalist Grid
+    ax.axhline(0.0, color=INK_MUTED, linestyle="-", linewidth=0.7, alpha=0.55, zorder=1)
+    ax.axvline(0.0, color=INK_MUTED, linestyle="-", linewidth=0.7, alpha=0.55, zorder=1)
     ax.set_xlim(bounds)
     ax.set_ylim(bounds)
     ax.set_aspect("equal", adjustable="box")
-    ax.grid(True, which="both", linestyle=":", linewidth=0.8, color="#94A3B8", alpha=0.6)
+
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.spines["left"].set_color(INK_SECONDARY)
+    ax.spines["bottom"].set_color(INK_SECONDARY)
+    ax.spines["left"].set_linewidth(0.85)
+    ax.spines["bottom"].set_linewidth(0.85)
+
+    ax.tick_params(direction="out", length=4, width=0.8, colors=INK_SECONDARY, labelsize=10)
+    ax.grid(True, which="both", linestyle=":", linewidth=0.6, color=RULE_HAIRLINE, alpha=0.65)
 
     ax.set_title(
-        r"$\bf{Panel\ 1:\ 2D\ Phase\ Space\ \mathbb{R}^2\ (x_1,\ x_2)}$" + "\n"
-        r"Vector Field $V(x_1, x_2) = (x_2, -x_1)$ & Concentric Phase Orbits $x_1^2 + x_2^2 = R^2$",
+        r"$\bf{Fig.\ 1a.\ \ Phase\ Plane\ \mathbb{R}^2\ (x_1,\ x_2)}$" + "\n"
+        r"Velocity Field $V(x_1, x_2) = (x_2, -x_1)$ & Concentric Level Curves $x_1^2 + x_2^2 = R^2$",
         fontsize=11.5,
+        color=INK_PRIMARY,
         pad=14,
     )
-    ax.set_xlabel(r"Position Coordinate $x_1$", fontsize=11, labelpad=8)
-    ax.set_ylabel(r"Velocity Coordinate $x_2 = \dot{x}_1$", fontsize=11, labelpad=8)
-    ax.legend(loc="upper right", fontsize=8.8, frameon=True, framealpha=0.92, edgecolor="#CBD5E1")
+    ax.set_xlabel(r"Position Coordinate $x_1$", fontsize=11, color=INK_PRIMARY, labelpad=8)
+    ax.set_ylabel(r"Velocity Coordinate $x_2 = \dot{x}_1$", fontsize=11, color=INK_PRIMARY, labelpad=8)
+    ax.legend(
+        loc="lower left",
+        fontsize=8.8,
+        frameon=True,
+        facecolor=ARCHIVAL_PAPER_BG,
+        framealpha=0.88,
+        edgecolor="none",
+        labelcolor=INK_PRIMARY,
+    )
 
 
 def plot_extended_phase_space_3d(
@@ -330,14 +354,24 @@ def plot_extended_phase_space_3d(
     bounds: Tuple[float, float],
 ) -> None:
     """
-    Renders Subplot 2: 3D Extended Phase Space R x R^2 (t, x_1, x_2) featuring the
-    cylindrical helix integral curve from t = 0 to t = 4*pi, the invariant energy cylinder,
-    and orthogonal projection onto the t = 0 phase plane.
+    Renders Fig. 1b: 3D Extended Phase Space R x R^2 (t, x_1, x_2) with transparent
+    archival panes, sepia invariant energy cylinder, Prussian blue t = 0 shadow projection,
+    and Carmine/Vermilion cylindrical helix gamma(t) over t in [0, 4*pi].
     """
+    ax.set_facecolor(ARCHIVAL_PAPER_BG)
+
+    # Remove 3D gray box chartjunk: make panes transparent with subtle hairline edges
+    for axis in (ax.xaxis, ax.yaxis, ax.zaxis):
+        axis.pane.fill = False
+        axis.pane.set_edgecolor(RULE_HAIRLINE)
+        axis._axinfo["grid"]["color"] = (0.78, 0.75, 0.66, 0.45)
+        axis._axinfo["grid"]["linestyle"] = ":"
+        axis._axinfo["grid"]["linewidth"] = 0.65
+
     t_min, t_max = float(helix_sol.t[0]), float(helix_sol.t[-1])
     radius: float = helix_sol.radius
 
-    # 1. Semitransparent invariant energy cylinder x_1^2 + x_2^2 = R^2 across t in [0, 4*pi]
+    # 1. Subtle sepia invariant energy cylinder x_1^2 + x_2^2 = R^2 across t in [0, 4*pi]
     t_cyl: FloatArray = np.linspace(t_min, t_max, 50, dtype=np.float64)
     theta_cyl: FloatArray = np.linspace(0.0, 2.0 * np.pi, 60, dtype=np.float64)
     T_mesh, Theta_mesh = np.meshgrid(t_cyl, theta_cyl)
@@ -348,8 +382,8 @@ def plot_extended_phase_space_3d(
         T_mesh,
         X1_cyl,
         X2_cyl,
-        color="#38BDF8",
-        alpha=0.14,
+        color=INK_OCHRE,
+        alpha=0.09,
         edgecolor="none",
         antialiased=True,
     )
@@ -359,23 +393,23 @@ def plot_extended_phase_space_3d(
         [t_min, t_max],
         [0.0, 0.0],
         [0.0, 0.0],
-        color="#DC2626",
+        color=INK_SECONDARY,
         linestyle="-.",
-        linewidth=1.6,
+        linewidth=1.3,
         alpha=0.8,
         label=r"Equilibrium Axis $(t, 0, 0)$",
     )
 
-    # 3. Orthogonal phase-plane shadow on the wall t = 0
+    # 3. Orthogonal phase-plane shadow on the wall t = 0 in Prussian Cobalt Ink
     ax.plot(
         np.zeros_like(helix_sol.t),
         helix_sol.x1,
         helix_sol.x2,
-        color="#7C3AED",
+        color=INK_COBALT,
         linestyle="--",
-        linewidth=1.8,
-        alpha=0.75,
-        label=r"Phase Plane Projection ($t = 0$)",
+        linewidth=1.7,
+        alpha=0.85,
+        label=r"Phase Projection ($t = 0$)",
     )
 
     # 4. Orthogonal tie-lines from key period points on the 3D helix to the t = 0 plane
@@ -388,19 +422,19 @@ def plot_extended_phase_space_3d(
             [float(tk), 0.0],
             [float(x1k), float(x1k)],
             [float(x2k), float(x2k)],
-            color="#64748B",
+            color=INK_MUTED,
             linestyle=":",
-            linewidth=1.0,
-            alpha=0.65,
+            linewidth=0.95,
+            alpha=0.7,
         )
 
-    # 5. Primary 3D Integral Curve gamma(t) = (t, x_1(t), x_2(t)) as a cylindrical helix
+    # 5. Primary 3D Integral Curve gamma(t) = (t, x_1(t), x_2(t)) in Vermilion Ink
     ax.plot(
         helix_sol.t,
         helix_sol.x1,
         helix_sol.x2,
-        color="#D55E00",
-        linewidth=3.0,
+        color=INK_VERMILION,
+        linewidth=2.7,
         label=rf"Integral Curve $\gamma(t)$ from $[{helix_sol.initial_state[0]:.0f}, {helix_sol.initial_state[1]:.0f}]$",
     )
 
@@ -409,9 +443,10 @@ def plot_extended_phase_space_3d(
         key_t_vals,
         key_x1_vals,
         key_x2_vals,
-        color="#0F172A",
-        edgecolor="#F8FAFC",
-        s=50,
+        color=ARCHIVAL_PAPER_BG,
+        edgecolor=INK_PRIMARY,
+        s=44,
+        linewidth=1.5,
         depthshade=False,
         zorder=6,
         label=r"Half-Period Nodes ($t = k\pi$)",
@@ -423,33 +458,42 @@ def plot_extended_phase_space_3d(
     ax.set_zlim(bounds)
 
     ax.set_xticks(key_t_vals)
-    ax.set_xticklabels([r"$0$", r"$\pi$", r"$2\pi$", r"$3\pi$", r"$4\pi$"], fontsize=10)
+    ax.set_xticklabels([r"$0$", r"$\pi$", r"$2\pi$", r"$3\pi$", r"$4\pi$"], fontsize=10, color=INK_SECONDARY)
+    ax.tick_params(colors=INK_SECONDARY, labelsize=9.5)
 
-    ax.set_xlabel(r"Time $t$", fontsize=11, labelpad=10)
-    ax.set_ylabel(r"Position $x_1$", fontsize=11, labelpad=10)
-    ax.set_zlabel(r"Velocity $x_2$", fontsize=11, labelpad=8)
+    ax.set_xlabel(r"Time $t$", fontsize=11, color=INK_PRIMARY, labelpad=10)
+    ax.set_ylabel(r"Position $x_1$", fontsize=11, color=INK_PRIMARY, labelpad=10)
+    ax.set_zlabel(r"Velocity $x_2$", fontsize=11, color=INK_PRIMARY, labelpad=8)
 
     ax.set_title(
-        r"$\bf{Panel\ 2:\ 3D\ Extended\ Phase\ Space\ \mathbb{R} \times \mathbb{R}^2\ (t,\ x_1,\ x_2)}$" + "\n"
+        r"$\bf{Fig.\ 1b.\ \ Extended\ Phase\ Space\ \mathbb{R} \times \mathbb{R}^2\ (t,\ x_1,\ x_2)}$" + "\n"
         r"Cylindrical Helix $\gamma(t) = (t,\ R\cos t,\ -R\sin t)$ for $t \in [0,\ 4\pi]$ ($R = 2$)",
         fontsize=11.5,
+        color=INK_PRIMARY,
         y=1.03,
         pad=0,
     )
 
     ax.view_init(elev=24, azim=-58)
-    ax.grid(True, linestyle=":", linewidth=0.8, alpha=0.6)
-    ax.legend(loc="upper left", bbox_to_anchor=(0.02, 0.94), fontsize=8.8, framealpha=0.92, edgecolor="#CBD5E1")
+    ax.legend(
+        loc="upper left",
+        bbox_to_anchor=(0.02, 0.94),
+        fontsize=8.8,
+        frameon=True,
+        facecolor=ARCHIVAL_PAPER_BG,
+        framealpha=0.88,
+        edgecolor="none",
+        labelcolor=INK_PRIMARY,
+    )
 
 
 def build_matplotlib_figure(config: OscillatorConfig | None = None) -> Figure:
     """
-    Orchestrates numerical integration and constructs the publication-ready dual-subplot figure.
+    Orchestrates numerical integration and constructs the archival Tufte dual-subplot figure.
     """
     cfg: OscillatorConfig = config or OscillatorConfig()
     model = HarmonicOscillatorModel(cfg)
 
-    # Execute numerical integration and vector field computations
     quiver_grid: VectorFieldGrid = model.compute_vector_field_grid(
         bounds=cfg.grid_bounds, resolution=cfg.quiver_density
     )
@@ -459,26 +503,27 @@ def build_matplotlib_figure(config: OscillatorConfig | None = None) -> Figure:
     phase_curves: Tuple[TrajectorySolution, ...] = model.solve_concentric_phase_curves()
     helix_sol: TrajectorySolution = model.solve_extended_helix()
 
-    # Create publication figure
     plt.rcParams.update(
         {
             "font.family": "serif",
             "mathtext.fontset": "cm",
-            "axes.edgecolor": "#334155",
-            "axes.linewidth": 0.9,
+            "axes.edgecolor": INK_SECONDARY,
+            "axes.linewidth": 0.85,
+            "text.color": INK_PRIMARY,
         }
     )
-    fig: Figure = plt.figure(figsize=(18, 8.8), dpi=300, facecolor="white")
+    fig: Figure = plt.figure(figsize=(17.5, 8.6), dpi=300, facecolor=ARCHIVAL_PAPER_BG)
     fig.suptitle(
         r"$\bf{Dynamical\ Systems\ and\ Ordinary\ Differential\ Equations\ (V.\ I.\ Arnold\ —\ Section\ 1.1.15)}$"
         + "\n"
         + r"Simple Harmonic Oscillator (Small Oscillations): $\dot{x}_1 = x_2,\; \dot{x}_2 = -x_1$"
-        + r"  |  First Integral: $E(x_1, x_2) = \frac{1}{2}(x_1^2 + x_2^2) = \mathrm{const}$",
-        fontsize=14,
+        + r"   $\bullet$   First Integral: $E(x_1, x_2) = \frac{1}{2}(x_1^2 + x_2^2) = \mathrm{const.}$",
+        fontsize=13.5,
+        color=INK_PRIMARY,
         y=0.97,
     )
 
-    gs = fig.add_gridspec(1, 2, width_ratios=[1.0, 1.12], wspace=0.18)
+    gs = fig.add_gridspec(1, 2, width_ratios=[1.0, 1.12], wspace=0.16)
     ax_2d: Axes = fig.add_subplot(gs[0, 0])
     ax_3d: Axes = fig.add_subplot(gs[0, 1], projection="3d")
 
@@ -496,7 +541,7 @@ def build_matplotlib_figure(config: OscillatorConfig | None = None) -> Figure:
         bounds=cfg.grid_bounds,
     )
 
-    fig.subplots_adjust(left=0.05, right=0.96, bottom=0.08, top=0.81, wspace=0.20)
+    fig.subplots_adjust(left=0.05, right=0.96, bottom=0.08, top=0.81, wspace=0.16)
     return fig
 
 
@@ -513,12 +558,10 @@ if __name__ == "__main__":
 
     output_path = pictures_dir / "small_oscillations_arnold.png"
     figure = build_matplotlib_figure()
-    figure.savefig(output_path, dpi=300, bbox_inches="tight", facecolor="white")
+    figure.savefig(output_path, dpi=300, bbox_inches="tight", facecolor=figure.get_facecolor())
     print(f"[1/2] Saved publication-ready figure to: '{output_path}'")
 
     interactive_html_path = script_dir / "small_oscillations_arnold_interactive.html"
     if interactive_html_path.exists() and "--no-browser" not in sys.argv:
         print(f"[2/2] Launching interactive 60 FPS animation in browser: '{interactive_html_path}'")
         webbrowser.open(interactive_html_path.as_uri())
-
-
